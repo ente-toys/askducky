@@ -33,10 +33,22 @@ export function AskDuckyShell() {
   const resultRef = useRef<PlayResult | null>(null);
 
   useEffect(() => {
-    setMotionPermission(historyRef.current.motionPermission ?? "unknown");
+    const saved = historyRef.current.motionPermission ?? "unknown";
+    setMotionPermission(saved);
     if (historyRef.current.lastResult) {
       resultRef.current = historyRef.current.lastResult;
       setResult(historyRef.current.lastResult);
+    }
+
+    // On non-iOS platforms, motion doesn't need permission — resolve immediately
+    if (saved !== "granted") {
+      requestMotionPermission().then((permission) => {
+        if (permission === "granted") {
+          setMotionPermission("granted");
+          historyRef.current = { ...historyRef.current, motionPermission: "granted" };
+          saveHistory(historyRef.current);
+        }
+      });
     }
   }, []);
 
