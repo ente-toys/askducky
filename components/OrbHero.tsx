@@ -1,11 +1,10 @@
-import Image from "next/image";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function OrbHero() {
   return (
-    <Image
-      src="/ducky/hero.png"
+    <img
+      src={`${basePath}/ducky/hero.png`}
       width={220}
-      height={252}
       alt=""
       role="img"
       aria-label="Ducky orb hero"

@@ -1,15 +1,16 @@
-import Image from "next/image";
 import type { DuckyMood } from "@/lib/types";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const moodImageMap: Record<DuckyMood, string> = {
-  smug: "/ducky/smug.png",
-  horrified: "/ducky/horrified.png",
-  side_eye: "/ducky/side_eye.png",
-  impressed: "/ducky/impressed.png",
-  disappointed: "/ducky/disappointed.png",
-  chaotic: "/ducky/chaotic.png",
-  suspicious: "/ducky/suspicious.png",
-  deeply_tired: "/ducky/deeply_tired.png",
+  smug: `${basePath}/ducky/smug.png`,
+  horrified: `${basePath}/ducky/horrified.png`,
+  side_eye: `${basePath}/ducky/side_eye.png`,
+  impressed: `${basePath}/ducky/impressed.png`,
+  disappointed: `${basePath}/ducky/disappointed.png`,
+  chaotic: `${basePath}/ducky/chaotic.png`,
+  suspicious: `${basePath}/ducky/suspicious.png`,
+  deeply_tired: `${basePath}/ducky/deeply_tired.png`,
 };
 
 export function DuckyMood({ mood }: { mood: DuckyMood }) {
@@ -17,7 +18,8 @@ export function DuckyMood({ mood }: { mood: DuckyMood }) {
     <div
       aria-label={`Ducky mood: ${mood.replace(/_/g, " ")}`}
       style={{
-        position: "relative",
+        display: "grid",
+        placeItems: "center",
         width: 92,
         height: 92,
         borderRadius: 24,
@@ -28,11 +30,14 @@ export function DuckyMood({ mood }: { mood: DuckyMood }) {
         overflow: "hidden",
       }}
     >
-      <Image
+      <img
         src={moodImageMap[mood]}
         alt={mood.replace(/_/g, " ")}
-        fill
-        style={{ objectFit: "cover" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
     </div>
   );
