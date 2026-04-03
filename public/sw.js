@@ -1,4 +1,4 @@
-const CACHE_NAME = "ask-ducky-v1";
+const CACHE_NAME = "ask-ducky-v2";
 const BASE_PATH = "/askducky";
 const OFFLINE_ASSETS = [
   BASE_PATH + "/",
@@ -7,6 +7,7 @@ const OFFLINE_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_ASSETS)),
   );
@@ -16,7 +17,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
-    ),
+    ).then(() => self.clients.claim()),
   );
 });
 
@@ -29,10 +30,16 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Pre-cached assets: serve from cache first
+  // Pre-cached assets: network first, fall back to cache for offline
   if (OFFLINE_ASSETS.includes(url.pathname)) {
     event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request)),
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match(request)),
     );
     return;
   }
