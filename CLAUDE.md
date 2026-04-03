@@ -15,11 +15,19 @@ Ask Ducky is a mobile-first, share-first web toy. Users shake their phone (or ta
 ## Commands
 
 ```bash
-npm run dev          # Dev server at localhost:3000
-npm run build        # Production static build
+npm run dev          # Dev server at localhost:3000/askducky (basePath)
+npm run build        # Production static export to out/
 npx vitest run       # Run tests
 npx tsc --noEmit     # Type check
 ```
+
+## Deployment
+
+- **Hosting:** GitHub Pages at https://ente-toys.github.io/askducky/
+- **Repo:** https://github.com/ente-toys/askducky
+- **Auto-deploy:** Every push to `main` triggers `.github/workflows/deploy.yml`
+- **Static export:** `output: "export"` in `next.config.ts`, served from `out/`
+- **basePath:** `/askducky` — all asset paths in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix. Do NOT use `next/image` for static assets (it doesn't prepend basePath with `output: "export"` + `unoptimized: true`). Use plain `<img>` with the env variable instead.
 
 ## Architecture summary
 
@@ -41,14 +49,30 @@ npx tsc --noEmit     # Type check
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
 - **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
-- **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake.
+- **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" button only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
+- **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
 
-## Placeholders still in place
+## Mascot and mood illustrations
 
-- `OrbHero.tsx` — SVG circle placeholder. Replace with official Ente/Ducky mascot asset.
-- `DuckyMood.tsx` — ASCII face placeholder. Replace with mascot poses mapped to 8 moods.
-- Typography uses Inter as placeholder. Confirm against official media kit.
-- Color tokens are Ente-adjacent approximations. Confirm against official media kit.
+Ducky mascot illustrations are exported from the Ente Figma file and stored in `public/ducky/`:
+
+| File | Usage | Figma node |
+|------|-------|------------|
+| `hero.png` | OrbHero on idle/question screens | `5:6184` |
+| `smug.png` | DuckyMood for `smug` verdict family | `5:4249` |
+| `horrified.png` | DuckyMood for `horrified` | `5:4032` |
+| `side_eye.png` | DuckyMood for `side_eye` | `5:3806` |
+| `impressed.png` | DuckyMood for `impressed` | `5:3871` |
+| `disappointed.png` | DuckyMood for `disappointed` | `5:3952` |
+| `chaotic.png` | DuckyMood for `chaotic` | `5:3654` |
+| `suspicious.png` | DuckyMood for `suspicious` | `5:4315` |
+| `deeply_tired.png` | DuckyMood for `deeply_tired` | `5:4162` |
+
+All exported at 0.25x from Figma (~300px height). No mood-specific facial expressions exist in Figma — variety comes from props/accessories (camera, trophy, globe, etc.).
+
+## Color tokens (from Figma)
+
+Primary accent green is `#08C225` (confirmed from Figma design system, not the previously assumed `#00BC45`). Full Ente green scale: `#E7F6E9` (light), `#BAECC2` (stroke), `#08C225` (primary), `#069D1E` (dark), `#057C18` (darker).
 
 ## Testing
 
@@ -60,6 +84,9 @@ Run `npx vitest run` before committing. Tests cover:
 
 ## Figma integration
 
-Figma MCP server is configured (`claude mcp add --transport http figma https://mcp.figma.com/mcp`) but OAuth authentication is pending. Once authenticated, use it to pull:
-- UX Design System: `https://www.figma.com/design/yRdype7tLNdFKezukasJaF/Ente-s-Agent-Workspace?node-id=0-1`
-- Ducky illustration: `https://www.figma.com/design/yRdype7tLNdFKezukasJaF/Ente-s-Agent-Workspace?node-id=5-3653`
+Figma MCP server is authenticated as `setal@ente.io` (ente team, Pro plan). File key: `yRdype7tLNdFKezukasJaF`.
+
+- Design System (page `0:1`): Colors, typography, components
+- Ducky Illustrations (page `5:3653`, frame `5:9306` "Dukcys"): All mascot assets
+
+Note: Figma plugin `exportAsync` times out for complex illustrations. For asset exports, use Figma desktop app at 0.25x scale and save to `public/ducky/`.

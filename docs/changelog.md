@@ -1,6 +1,6 @@
 # Ask Ducky — Development Changelog
 
-Issues discovered and fixed during the initial implementation review.
+Issues discovered and fixed during implementation.
 
 ## Round 1: Implementation review
 
@@ -83,3 +83,34 @@ User feedback: questions try too hard to be funny and verdicts feel unrelated to
 **Problem:** Content test expected 80-120 verdicts (old global-only count). Now 156 with category-specific lines.
 **Fix:** Updated upper bounds: verdicts ≤ 200, afterburns ≤ 100.
 **Files:** `tests/content.test.ts`
+
+## Round 3: Figma integration and deployment
+
+Figma MCP authenticated, design system explored, mascot assets exported, GitHub Pages deployment configured.
+
+### Fixed
+
+#### 15. Accent green corrected from Figma (Significant)
+**Problem:** Placeholder accent green `#00BC45` was an approximation. The official Ente primary green from Figma is `#08C225`.
+**Fix:** Updated `--accent` and all `rgba(0,188,69,...)` references to use `#08C225` / `rgba(8,194,37,...)` across `globals.css`, `brandTokens.ts`, `ShareCard.module.css`, `layout.tsx`, and `manifest.webmanifest`.
+**Files:** `app/globals.css`, `app/data/brandTokens.ts`, `app/layout.tsx`, `components/ShareCard.module.css`, `public/manifest.webmanifest`
+
+#### 16. Placeholder mascot replaced with Figma exports (Major)
+**Problem:** OrbHero was an SVG circle with dots. DuckyMood rendered ASCII faces. Both were placeholders.
+**Fix:** Exported 9 Ducky illustrations from Figma at 0.25x scale. OrbHero now shows the base happy Ducky. DuckyMood shows mood-appropriate illustrations (trophy=smug, cat-grab=horrified, camera=side_eye, globe=impressed, camera+coffee=disappointed, three duckies=chaotic, camera full=suspicious, hugging=deeply_tired).
+**Files:** `components/OrbHero.tsx`, `components/DuckyMood.tsx`, `public/ducky/*.png`
+
+#### 17. GitHub Pages deployment (Major)
+**Problem:** No deployment pipeline. App only ran locally.
+**Fix:** Switched to `output: "export"` for static site generation. Added GitHub Actions workflow for auto-deploy on push to main. Configured `basePath: "/askducky"` for GitHub Pages subpath. Added `NEXT_PUBLIC_BASE_PATH` env for runtime path resolution.
+**Files:** `next.config.ts`, `.github/workflows/deploy.yml`
+
+#### 18. basePath not applied to static assets (Significant)
+**Problem:** Plain `<img>` tags and `next/image` with `unoptimized: true` don't prepend basePath in static export. Ducky images, service worker, manifest, and favicon all loaded from wrong paths on GitHub Pages.
+**Fix:** Used `process.env.NEXT_PUBLIC_BASE_PATH` prefix for all static asset `src` attributes. Updated service worker and manifest paths to include `/askducky` prefix.
+**Files:** `components/OrbHero.tsx`, `components/DuckyMood.tsx`, `components/ServiceWorkerRegister.tsx`, `public/sw.js`, `public/manifest.webmanifest`
+
+#### 19. "Enable shake" button showing on all platforms (Minor)
+**Problem:** The motion permission button appeared on Android and desktop where no permission is needed.
+**Fix:** Call `requestMotionPermission()` on mount. On non-iOS platforms it resolves immediately to "granted" (no `requestPermission` API), hiding the button. iOS still shows it since Safari requires a user gesture.
+**Files:** `components/AskDuckyShell.tsx`
