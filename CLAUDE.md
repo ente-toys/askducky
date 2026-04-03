@@ -15,7 +15,7 @@ Ask Ducky is a mobile-first, share-first web toy. Users pick from 3 displayed qu
 ## Commands
 
 ```bash
-npm run dev          # Dev server at localhost:3000/askducky (basePath)
+npm run dev          # Dev server at localhost:3000
 npm run build        # Production static export to out/
 npx vitest run       # Run tests
 npx tsc --noEmit     # Type check
@@ -23,18 +23,19 @@ npx tsc --noEmit     # Type check
 
 ## Deployment
 
-- **Hosting:** GitHub Pages at https://ente-toys.github.io/askducky/
+- **Domain:** https://askducky.app (custom domain via GitHub Pages CNAME)
 - **Repo:** https://github.com/ente-toys/askducky
 - **Auto-deploy:** Every push to `main` triggers `.github/workflows/deploy.yml`
 - **Static export:** `output: "export"` in `next.config.ts`, served from `out/`
-- **basePath:** `/askducky` — all asset paths in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix. Do NOT use `next/image` for static assets (it doesn't prepend basePath with `output: "export"` + `unoptimized: true`). Use plain `<img>` with the env variable instead.
+- **No basePath:** Custom domain serves from root. `NEXT_PUBLIC_BASE_PATH` is `""`. Do NOT use `next/image` for static assets (it doesn't work with `output: "export"` + `unoptimized: true`). Use plain `<img>` instead.
 
 ## Architecture summary
 
 - **Single client component** (`AskDuckyShell.tsx`) manages a 2-phase state machine: idle → result (question phase was removed — tapping or shaking goes directly to result)
-- **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, correlated moods, and visual variants
+- **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, correlated moods, visual variants, and randomized Ducky Drip configs
 - **All content is bundled** — no backend, no API calls. Fully playable offline after first load
 - **Browser APIs** (shake, haptics, share, export) are each isolated behind small library interfaces in `lib/`
+- **Ducky Drip** (`lib/duckyDrip.ts`, `components/DuckyDrip.tsx`) renders randomized ducky avatars from layered SVGs (48 assets in `public/ducky/drip/`)
 
 ## Content engine rules
 
@@ -45,7 +46,7 @@ npx tsc --noEmit     # Type check
 
 ## Design decisions to preserve
 
-- **Share card is the result screen.** The card renders outside the main card container (no double bounding box). Buttons sit below it.
+- **Share card is the result screen.** The card renders outside the main card container (no double bounding box). Buttons sit below it. No "Ask Ducky" header in the card (topbar already has it).
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
 - **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
@@ -53,24 +54,33 @@ npx tsc --noEmit     # Type check
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
 - **No-scroll viewport fit.** Both home and result screens are constrained to fit within the viewport without page scrolling. Home card uses `max-height: calc(100svh - 120px)` with internal scroll; result card uses `max-height: calc(100svh - 260px)`.
 - **Topbar has ducky + brand link.** Left: clickable "Ask Ducky" with hero ducky (resets to home). Right: "Made with 💚 / ente" linking to `ente.com/?utm_source=askducky`.
+- **Randomized backgrounds.** 7 color themes applied via CSS custom properties on `<html>`. Rotates on mount and on each "Ask again". Flat dark base (no vertical gradient) ensures even blob visibility.
+- **Haptics on every interaction.** Question tap fires `hapticForQuestionReveal`, verdict fires `hapticForVerdictReveal` (double-pulse). Share success fires `hapticForShareSuccess`. All patterns scaled ~1.55x.
 
-## Mascot and mood illustrations
+## Mascot illustrations
 
-Ducky mascot illustrations are exported from the Ente Figma file and stored in `public/ducky/`:
+### Ducky Drip (primary — used in share card)
 
-| File | Usage | Figma node |
-|------|-------|------------|
-| `hero.png` | Topbar icon + ShareCard mood fallback | `5:6184` |
-| `smug.png` | DuckyMood for `smug` verdict family | `5:4249` |
-| `horrified.png` | DuckyMood for `horrified` | `5:4032` |
-| `side_eye.png` | DuckyMood for `side_eye` | `5:3806` |
-| `impressed.png` | DuckyMood for `impressed` | `5:3871` |
-| `disappointed.png` | DuckyMood for `disappointed` | `5:3952` |
-| `chaotic.png` | DuckyMood for `chaotic` | `5:3654` |
-| `suspicious.png` | DuckyMood for `suspicious` | `5:4315` |
-| `deeply_tired.png` | DuckyMood for `deeply_tired` | `5:4162` |
+Randomized ducky avatars composed from layered SVGs in `public/ducky/drip/`. Assets sourced from `ente-toys/Ducky-drip` private repo (`ente-hack/src/assets/`).
 
-All exported at 0.25x from Figma (~300px height). No mood-specific facial expressions exist in Figma — variety comes from props/accessories (camera, trophy, globe, etc.).
+| Category | Count | Path pattern |
+|----------|-------|-------------|
+| Base | 1 | `drip/base.svg` (always shown) |
+| Caps | 14 | `drip/caps/cap-01..14.svg` |
+| Shoes | 12 | `drip/shoes/shoe-01..12.svg` |
+| Shades | 12 | `drip/shades/shade-01..12.svg` |
+| Accessories | 9 | `drip/acc/acc-01..09.svg` |
+
+Each category has ~20% chance of being empty per result. At least one item is always selected. Layer order (bottom to top): base → shoes → accessories → shades → cap.
+
+### Static mood PNGs (legacy — kept for fallback)
+
+| File | Figma node |
+|------|------------|
+| `hero.png` | `5:6184` (used in topbar + share card footer) |
+| `smug.png`, `horrified.png`, `side_eye.png`, `impressed.png`, `disappointed.png`, `chaotic.png`, `suspicious.png`, `deeply_tired.png` | Various |
+
+All exported at 0.25x from Figma (~300px height).
 
 ## Color tokens (from Figma)
 

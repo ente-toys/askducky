@@ -160,3 +160,34 @@ Major UX overhaul to simplify the flow and improve visual hierarchy.
 **Problem:** The SW used cache-first for pre-cached assets including the HTML page. New deploys were invisible until users manually cleared site data.
 **Fix:** Bumped cache name to `ask-ducky-v2`. Pre-cached assets now use network-first with cache fallback. Added `skipWaiting()` + `clients.claim()` for immediate activation of new service worker versions.
 **Files:** `public/sw.js`
+
+## Round 5: Visual variety and haptics
+
+Added randomized Ducky Drip characters, vibrant background themes, haptic feedback on question tap, and share card footer redesign.
+
+### Fixed
+
+#### 28. No haptic feedback on question tap (Significant)
+**Problem:** `hapticForQuestionReveal()` existed in `lib/haptics.ts` but was never called. Users got no tactile feedback when tapping a question card — only on shake (via `goToResult`).
+**Fix:** Added `hapticForQuestionReveal()` call at the top of `selectQuestion()`. Creates a double-pulse: question tap haptic fires, then verdict reveal haptic fires inside `goToResult()`. Also scaled all haptic durations ~1.55x (e.g., 18ms → 28ms, [16,32,22] → [25,50,34]) for a more noticeable feel.
+**Files:** `lib/haptics.ts`, `components/AskDuckyShell.tsx`
+
+#### 29. Same 8 ducky moods made results look repetitive (Major)
+**Problem:** The share card always showed one of 8 static DuckyMood PNGs (one per mood). Every result with the same mood looked identical, reducing shareability.
+**Fix:** Replaced `DuckyMood` with `DuckyDrip` — randomized Ducky avatars composed from layered SVGs (base + cap + shoes + shades + accessories). 48 SVG assets downloaded from `ente-toys/Ducky-drip` private repo into `public/ducky/drip/`. Each category has ~20% chance of being empty, guaranteeing at least one item. Added `DripConfig` to `PlayResult` type and `randomDripConfig()` to content engine.
+**Files:** `components/DuckyDrip.tsx` (new), `lib/duckyDrip.ts` (new), `lib/types.ts`, `lib/contentEngine.ts`, `components/ShareCard.tsx`, `public/ducky/drip/` (48 SVGs)
+
+#### 30. Flat dark background felt lifeless (Significant)
+**Problem:** The page background was a static dark green with barely visible faint gradients (0.1-0.18 opacity). Every session looked the same.
+**Fix:** Added 7 randomized background color themes (emerald, aurora, sunset, ocean, neon, golden, cosmic) using CSS custom properties (`--blob-1` through `--blob-4`). Themes applied via `document.documentElement.style` on mount and rotated on each "Ask again". Replaced the dark vertical gradient on `html` with flat `#07110b` so blobs are equally visible top to bottom. Added slow 40s `bgDrift` CSS animation for ambient movement. Respects `prefers-reduced-motion`.
+**Files:** `app/globals.css`, `components/AskDuckyShell.tsx`
+
+#### 31. Share card footer looked off with plain URL text (Minor)
+**Problem:** The "askducky.app" URL in the share card footer used a different type style from the rest of the UI, looking inconsistent.
+**Fix:** Replaced with a branded footer matching the topbar style: ducky hero icon (24px circle) + "AskDucky.app" in bold. Added a horizontal divider line between the afterburn text and footer. Tagline "Ducky is judging your privacy choices" moved to smaller muted text on the left.
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`
+
+#### 32. Redundant "Ask Ducky" header in share card (Minor)
+**Problem:** The share card had an "Ask Ducky" label at the top, duplicating what the topbar already shows. Wasted vertical space.
+**Fix:** Removed the header row from the share card. Updated grid template rows. Increased padding (28px → 32px), gap (18px → 24px), and DuckyDrip size (100px → 180px) to use the freed space for better visual presence.
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`

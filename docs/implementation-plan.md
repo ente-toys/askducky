@@ -20,11 +20,14 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 | Offline support | Done | Service worker + bundled content (basePath-aware) |
 | Local persistence | Done | Recent history, motion permission, last result re-share |
 | Design tokens | Done | Accent green `#08C225` confirmed from Figma design system |
-| Mascot assets | Done | 9 Ducky PNGs exported from Figma (hero + 8 moods) |
+| Mascot assets | Done | 9 Ducky PNGs exported from Figma (hero + 8 moods), replaced by Ducky Drip SVGs |
+| Ducky Drip | Done | 48 SVG assets from ente-toys/Ducky-drip repo, randomized avatar per result |
+| Haptics | Done | Fires on question tap + verdict reveal (double-pulse), patterns scaled 1.55x |
+| Background themes | Done | 7 randomized color themes with animated drift, rotates on each play |
 | Font loading | Done | Inter via next/font/google |
 | State animations | Done | Phase transitions, orb float, verdict pop, card reveal |
 | Figma MCP | Done | Authenticated as setal@ente.io, design system and Ducky assets explored |
-| GitHub Pages | Done | Auto-deploy on push to main, basePath `/askducky` |
+| GitHub Pages | Done | Auto-deploy on push to main, custom domain `askducky.app` |
 
 ## Key decisions made during implementation
 
@@ -85,13 +88,25 @@ The original SW used cache-first for pre-cached assets (including HTML), causing
 - Adding `skipWaiting()` + `clients.claim()` for immediate SW activation
 - Bumping cache name on breaking changes to invalidate old caches
 
+### Ducky Drip replaces static mood illustrations
+The 8 static DuckyMood PNGs (one per mood) made every result look similar. Replaced with randomized Ducky Drip avatars — layered SVGs (base + cap + shoes + shades + accessories) from the `ente-toys/Ducky-drip` private repo. Each result gets a unique ducky combination from 48 SVG assets (14 caps, 12 shoes, 12 shades, 9 accessories). ~20% chance per category to be empty, guaranteeing at least one item. The `DuckyDrip` component uses absolutely positioned `<img>` tags matching the original Ducky Drip `AvatarPreview.jsx` approach.
+
+### Haptics on question tap (double-pulse)
+The existing `hapticForQuestionReveal()` function was defined but never called. Now fires when the user taps a question card, followed immediately by `hapticForVerdictReveal()` inside `goToResult()`, creating a two-beat tactile rhythm. All haptic durations scaled ~1.55x for a more noticeable feel.
+
+### Randomized background color themes
+The page background was a static dark green with faint gradients. Added 7 color themes (emerald, aurora, sunset, ocean, neon, golden, cosmic) applied via CSS custom properties on `<html>`. Randomly selected on mount and rotated on each "Ask again". A slow 40s `bgDrift` CSS animation adds ambient movement. The flat `#07110b` base on `html` (no vertical gradient) ensures blobs are equally visible top to bottom.
+
+### Share card footer redesign
+Replaced the plain "askducky.app" URL text with a branded footer: ducky hero icon (24px) + "AskDucky.app" in bold (matching topbar style). Added a horizontal divider line between the afterburn text and footer. Removed the redundant "Ask Ducky" header from the share card since the topbar already shows it.
+
 ## What's still needed for launch
 
 1. **Visual QA on share card** — Test PNG export quality across devices, verify card looks good when shared on social/chat
 2. **Real-device testing** — Shake threshold tuning on physical iOS and Android devices
 3. **Content QA pass** — Human review of all 200 questions and category-specific verdicts for tone consistency
 4. **Typography confirmation** — Inter is placeholder. Confirm against official media kit
-5. **Custom domain** — Currently at `ente-toys.github.io/askducky/`, may want `askducky.app` or similar
+5. ~~**Custom domain**~~ — Done. CNAME set to `askducky.app`, basePath removed
 
 ## Scope cut priority (if needed)
 

@@ -13,14 +13,11 @@ export function ShareCard({
 }) {
   return (
     <div className={`${styles.card} ${styles[result.visualVariant] ?? ""}`}>
-      <div className={styles.header}>
-        <span className={styles.label}>Ask Ducky</span>
-      </div>
       <div className={styles.questionWrap}>
         <p className={styles.question}>{result.question.text}</p>
       </div>
       <div className={styles.moodWrap}>
-        <DuckyDrip config={result.dripConfig} size={140} />
+        <DuckyDrip config={result.dripConfig} size={180} />
       </div>
       <div className={styles.content}>
         <h3 className={styles.verdict}>{result.verdict.text}</h3>

@@ -1,9 +1,8 @@
-const CACHE_NAME = "ask-ducky-v2";
-const BASE_PATH = "/askducky";
+const CACHE_NAME = "ask-ducky-v3";
 const OFFLINE_ASSETS = [
-  BASE_PATH + "/",
-  BASE_PATH + "/manifest.webmanifest",
-  BASE_PATH + "/icon.svg",
+  "/",
+  "/manifest.webmanifest",
+  "/icon.svg",
 ];
 
 self.addEventListener("install", (event) => {
@@ -53,7 +52,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match(BASE_PATH + "/"))),
+        .catch(() => caches.match(request).then((cached) => cached || caches.match("/"))),
     );
     return;
   }

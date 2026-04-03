@@ -8,11 +8,11 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 40%),
     var(--bg);
   border: 1px solid var(--line);
-  padding: 28px;
+  padding: 32px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
-  gap: 18px;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  gap: 24px;
 }
 
 .grid-glow {
@@ -67,7 +67,6 @@
 .archive-stack { background-image: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 18%), linear-gradient(180deg, rgba(255,255,255,0.05), transparent 40%), linear-gradient(180deg, #09130c, #061008); }
 .restore-path { background-image: radial-gradient(circle at 50% 85%, rgba(8,194,37,0.12), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.05), transparent 40%), linear-gradient(180deg, #09130c, #061008); }
 
-.header,
 .divider {
   height: 1px;
   background: var(--line);
@@ -116,7 +115,7 @@
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 18px 20px;
 }
 
 .question {

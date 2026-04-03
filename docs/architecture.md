@@ -54,14 +54,15 @@ generatePlayResultForQuestion(question, history)
   │     └── filterRecent → pickRandom
   │
   ├── Mood selection → pickRandom(moodsByFamily[verdict.family])
-  └── Visual variant, footer, caption selection
+  ├── Visual variant, footer, caption selection
+  └── DripConfig → randomDripConfig() (cap, shoe, shade, accessory)
 
 generatePlayResult(history)
   │
   └── pickQuestion(history) → generatePlayResultForQuestion(question, history)
 ```
 
-**Result payload:** `{ question, verdict, afterburn, footer, caption, mood, visualVariant }`
+**Result payload:** `{ question, verdict, afterburn, footer, caption, mood, visualVariant, dripConfig }`
 
 ## Content data model
 
@@ -114,11 +115,11 @@ RootLayout (server)
                   │   └── "More questions" button (primary)
                   └── result (outside card, in shell):
                       ├── ShareCard
-                      │   ├── Header ("Ask Ducky" label)
                       │   ├── QuestionWrap (frosted background)
-                      │   ├── DuckyMood (centered, 100px)
+                      │   ├── DuckyDrip (centered, 180px, randomized SVG layers)
                       │   ├── Content (verdict, afterburn)
-                      │   └── Footer ("Ducky is judging..." + URL)
+                      │   ├── Divider line
+                      │   └── Footer (tagline + ducky icon + "AskDucky.app")
                       ├── "Share this" button (primary)
                       └── "Ask again" button (secondary)
 ```
@@ -130,11 +131,12 @@ Each browser-dependent concern is isolated behind a small interface in `lib/`:
 | Module | Purpose | Browser API |
 |--------|---------|-------------|
 | `shake.ts` | Shake detection + iOS permission | DeviceMotionEvent |
-| `haptics.ts` | Vibration patterns | navigator.vibrate |
+| `haptics.ts` | Vibration patterns (question tap, verdict, share) | navigator.vibrate |
 | `share.ts` | 4-tier share fallback chain | navigator.share, navigator.clipboard |
 | `exportImage.ts` | DOM → PNG export + download | html-to-image, URL.createObjectURL |
 | `storage.ts` | History persistence | localStorage |
 | `contentEngine.ts` | Question picking, result generation | — |
+| `duckyDrip.ts` | Random Ducky Drip avatar config | — |
 
 ## Share flow
 
@@ -174,6 +176,7 @@ handleShare()
 - **Share card variants:** 20 category-specific CSS classes with unique gradient/texture backgrounds
 - **Shimmer animation:** Green/gold gradient sweep on the shake hint text
 - **Viewport fit:** Both screens use `max-height` with `svh` units to prevent page scrolling
+- **Randomized backgrounds:** 7 color themes (emerald, aurora, sunset, ocean, neon, golden, cosmic) applied via CSS custom properties (`--blob-1` through `--blob-4`). Randomized on mount and on each "Ask again". Slow 40s `bgDrift` animation for ambient motion.
 
 ## Design tokens (current placeholders)
 
