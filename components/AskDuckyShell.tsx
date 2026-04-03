@@ -2,23 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./AskDuckyShell.module.css";
-import { MotionPermissionGate } from "@/components/MotionPermissionGate";
-import { OrbHero } from "@/components/OrbHero";
 import { ShareCard } from "@/components/ShareCard";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { generatePlayResult } from "@/lib/contentEngine";
+import { generatePlayResult, generatePlayResultForQuestion, pickMultipleQuestions } from "@/lib/contentEngine";
 import { downloadBlob, exportNodeToPng } from "@/lib/exportImage";
 import {
-  hapticForQuestionReveal,
   hapticForShareSuccess,
   hapticForVerdictReveal,
 } from "@/lib/haptics";
 import { requestMotionPermission, createShakeController } from "@/lib/shake";
 import { sharePayload } from "@/lib/share";
 import { loadHistory, pushHistory, saveHistory } from "@/lib/storage";
-import type { PlayResult } from "@/lib/types";
+import type { PlayResult, Question } from "@/lib/types";
 
-type Phase = "idle" | "question" | "result";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+type Phase = "idle" | "result";
 type MotionState = "unknown" | "granted" | "denied" | "unsupported";
 
 export function AskDuckyShell() {
@@ -28,6 +27,7 @@ export function AskDuckyShell() {
   const [feedback, setFeedback] = useState("");
   const [imageFallbackMode, setImageFallbackMode] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [displayedQuestions, setDisplayedQuestions] = useState<Question[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
   const historyRef = useRef(loadHistory());
   const resultRef = useRef<PlayResult | null>(null);
@@ -40,7 +40,8 @@ export function AskDuckyShell() {
       setResult(historyRef.current.lastResult);
     }
 
-    // On non-iOS platforms, motion doesn't need permission — resolve immediately
+    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
+
     if (saved !== "granted") {
       requestMotionPermission().then((permission) => {
         if (permission === "granted") {
@@ -56,12 +57,7 @@ export function AskDuckyShell() {
     const controller = createShakeController({
       onShake: () => {
         if (phase === "idle") {
-          revealQuestion();
-          return;
-        }
-
-        if (phase === "question") {
-          revealVerdict();
+          goToResult(generatePlayResult(historyRef.current));
         }
       },
     });
@@ -73,38 +69,38 @@ export function AskDuckyShell() {
     return () => controller.stop();
   }, [phase, motionPermission]);
 
-  function revealQuestion() {
-    const nextResult = generatePlayResult(historyRef.current);
-    resultRef.current = nextResult;
-    setResult(nextResult);
-    setPhase("question");
-    setFeedback("");
-    hapticForQuestionReveal();
-  }
-
-  function revealVerdict() {
-    if (!resultRef.current) {
-      revealQuestion();
-      return;
-    }
+  function goToResult(playResult: PlayResult) {
+    resultRef.current = playResult;
+    setResult(playResult);
 
     const nextHistory = pushHistory(
       historyRef.current,
-      resultRef.current.question.id,
-      resultRef.current.verdict.id,
+      playResult.question.id,
+      playResult.verdict.id,
     );
-    nextHistory.lastResult = resultRef.current;
+    nextHistory.lastResult = playResult;
     nextHistory.motionPermission = motionPermission;
     historyRef.current = nextHistory;
     saveHistory(nextHistory);
+
     setPhase("result");
+    setFeedback("");
     hapticForVerdictReveal();
+  }
+
+  function selectQuestion(question: Question) {
+    goToResult(generatePlayResultForQuestion(question, historyRef.current));
+  }
+
+  function refreshQuestions() {
+    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
   }
 
   function resetPlay() {
     setPhase("idle");
     setFeedback("");
     setImageFallbackMode(false);
+    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
   }
 
   async function handleMotionRequest() {
@@ -205,91 +201,91 @@ export function AskDuckyShell() {
     setIsSharing(false);
   }
 
-  const categoryLabel = result ? result.question.categoryId.replace(/_/g, " ") : "mobile-first toy";
+  const showEnableShake = motionPermission === "unknown" || motionPermission === "denied";
 
   return (
     <main className={styles.page}>
       <ServiceWorkerRegister />
       <div className={styles.shell}>
         <div className={styles.topbar}>
-          <span className={styles.badge}>Ask Ducky</span>
+          <button type="button" className={styles.topbarLeft} onClick={resetPlay}>
+            <img
+              src={`${basePath}/ducky/hero.png`}
+              width={36}
+              height={36}
+              alt=""
+              className={styles.topbarDucky}
+            />
+            <span className={styles.topbarTitle}>Ask Ducky</span>
+          </button>
+          <a
+            href="https://ente.com/?utm_source=askducky"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.topbarRight}
+          >
+            <span className={styles.topbarMadeWith}>Made with 💚</span>
+            <span className={styles.topbarEnte}>ente</span>
+          </a>
         </div>
 
-        <section className={styles.card}>
-          {phase === "idle" ? (
-            <>
-              <div className={`${styles.hero} ${styles.phaseEnter}`}>
-                <span className={styles.eyebrow}>Privacy advice, badly delivered</span>
-                <h1 className={styles.title}>Shake for a privacy verdict</h1>
-                <p className={styles.subtitle}>
-                  A judgmental duck for your digital life.
-                </p>
-              </div>
-              <div className={styles.orbWrap}>
-                <OrbHero />
-              </div>
-              <div className={`${styles.controls} ${styles.controlsEnter}`}>
-                <MotionPermissionGate permission={motionPermission} onRequest={handleMotionRequest} />
-                <button type="button" className={styles.primary} onClick={revealQuestion}>
-                  Get a question
-                </button>
-                <div className={styles.hint}>Shake your phone or tap to start.</div>
-              </div>
-            </>
-          ) : null}
-
-          {phase === "question" && result ? (
-            <>
-              <div className={`${styles.questionBlock} ${styles.phaseEnter}`}>
-                <span className={styles.eyebrow}>{categoryLabel}</span>
-                <h2 className={styles.question}>{result.question.text}</h2>
-                <div className={styles.hint}>Shake again for Ducky’s verdict.</div>
-              </div>
-              <div className={styles.orbWrap}>
-                <OrbHero />
-              </div>
-              <div className={`${styles.controls} ${styles.controlsEnter}`}>
-                <button type="button" className={styles.primary} onClick={revealVerdict}>
-                  Reveal verdict
-                </button>
-                <button type="button" className={styles.tertiary} onClick={revealQuestion}>
-                  New question
-                </button>
-              </div>
-            </>
-          ) : null}
-
-          {phase === "result" && result ? (
-            <>
-              <div className={`${styles.resultCardWrap} ${styles.cardEnter}`}>
-                <div ref={cardRef}>
-                  <ShareCard result={result} fallbackMode={imageFallbackMode} />
-                </div>
-              </div>
-              <div className={`${styles.controls} ${styles.controlsEnter}`}>
-                <button type="button" className={styles.primary} onClick={() => void handleShare()} disabled={isSharing}>
-                  {isSharing ? "Sharing..." : "Share this"}
-                </button>
-                <button type="button" className={styles.secondary} onClick={resetPlay}>
-                  Ask again
-                </button>
-                <div className={styles.smallActions}>
-                  <button type="button" className={styles.tertiary} onClick={() => void handleDownloadFallback()}>
-                    Save image
-                  </button>
+        {phase === "idle" ? (
+          <section className={styles.card}>
+            <div className={`${styles.hero} ${styles.phaseEnter}`}>
+              <h1 className={styles.title}>Ask Ducky your privacy questions</h1>
+              <p className={styles.subtitle}>
+                Ducky is judging your privacy choices
+              </p>
+            </div>
+            <div className={`${styles.questionList} ${styles.phaseEnter}`}>
+              <div className={styles.shakeHintWrap}>
+                <span className={styles.shakeHint}>Shake to ask a random question</span>
+                {showEnableShake ? (
                   <button
                     type="button"
-                    className={styles.tertiary}
-                    onClick={() => navigator.clipboard?.writeText("https://askducky.app")}
+                    className={styles.enableShakeLink}
+                    onClick={() => void handleMotionRequest()}
                   >
-                    Copy link
+                    Enable shake
                   </button>
-                </div>
-                <div className={styles.feedback}>{feedback}</div>
+                ) : null}
               </div>
-            </>
-          ) : null}
-        </section>
+              {displayedQuestions.map((q) => (
+                <button
+                  key={q.id}
+                  type="button"
+                  className={styles.questionItem}
+                  onClick={() => selectQuestion(q)}
+                >
+                  {q.text}
+                </button>
+              ))}
+              <button type="button" className={styles.primary} onClick={refreshQuestions}>
+                More questions
+              </button>
+            </div>
+            {feedback ? <div className={styles.feedback}>{feedback}</div> : null}
+          </section>
+        ) : null}
+
+        {phase === "result" && result ? (
+          <>
+            <div className={`${styles.resultCardWrap} ${styles.cardEnter}`}>
+              <div ref={cardRef}>
+                <ShareCard result={result} fallbackMode={imageFallbackMode} />
+              </div>
+            </div>
+            <div className={`${styles.resultControls} ${styles.controlsEnter}`}>
+              <button type="button" className={styles.primary} onClick={() => void handleShare()} disabled={isSharing}>
+                {isSharing ? "Sharing..." : "Share this"}
+              </button>
+              <button type="button" className={styles.secondary} onClick={resetPlay}>
+                Ask again
+              </button>
+              {feedback ? <div className={styles.feedback}>{feedback}</div> : null}
+            </div>
+          </>
+        ) : null}
       </div>
     </main>
   );

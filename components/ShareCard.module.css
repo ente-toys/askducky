@@ -1,6 +1,6 @@
 .card {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  max-height: calc(100svh - 260px);
   border-radius: 28px;
   overflow: hidden;
   background:
@@ -8,11 +8,11 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 40%),
     var(--bg);
   border: 1px solid var(--line);
-  padding: 24px;
+  padding: 28px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 16px;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  gap: 18px;
 }
 
 .grid-glow {
@@ -82,32 +82,49 @@
   color: var(--muted);
 }
 
-.content {
-  display: grid;
-  align-content: center;
-  gap: 16px;
+.questionWrap {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 16px;
 }
 
 .question {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.4;
-  color: var(--muted);
+  color: var(--text);
+}
+
+.moodWrap {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.content {
+  display: grid;
+  align-content: center;
+  gap: 20px;
 }
 
 .verdict {
   margin: 0;
-  font-size: clamp(1.6rem, 2.2em, 2.8rem);
-  line-height: 0.95;
+  font-size: clamp(1.3rem, 1.8em, 2.2rem);
+  line-height: 1;
   font-weight: 800;
   color: var(--text);
+  text-align: center;
 }
 
 .afterburn {
   margin: 0;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   line-height: 1.45;
   color: var(--muted);
+  text-align: center;
+  padding: 0 8px;
 }
 
 .url {

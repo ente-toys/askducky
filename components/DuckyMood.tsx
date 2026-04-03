@@ -13,16 +13,17 @@ const moodImageMap: Record<DuckyMood, string> = {
   deeply_tired: `${basePath}/ducky/deeply_tired.png`,
 };
 
-export function DuckyMood({ mood }: { mood: DuckyMood }) {
+export function DuckyMood({ mood, size = 92 }: { mood: DuckyMood; size?: number }) {
+  const radius = Math.round(size * 0.26);
   return (
     <div
       aria-label={`Ducky mood: ${mood.replace(/_/g, " ")}`}
       style={{
         display: "grid",
         placeItems: "center",
-        width: 92,
-        height: 92,
-        borderRadius: 24,
+        width: size,
+        height: size,
+        borderRadius: radius,
         background:
           "linear-gradient(180deg, rgba(255,202,114,0.22), rgba(255,202,114,0.08))",
         border: "1px solid rgba(255,202,114,0.2)",

@@ -85,8 +85,25 @@ function pickAfterburn(categoryId: string, recentIds: string[]) {
   return pickRandom(filtered);
 }
 
-export function generatePlayResult(history: RecentHistory): PlayResult {
-  const question = pickQuestion(history);
+export function pickMultipleQuestions(count: number, history: RecentHistory): Question[] {
+  const picked: Question[] = [];
+  const usedIds: string[] = [...history.questionIds];
+
+  for (let i = 0; i < count; i++) {
+    const category = pickWeightedRandom(categories);
+    const categoryQuestions = filterRecent(
+      questions.filter((item) => item.categoryId === category.id),
+      usedIds,
+    );
+    const q = pickRandom(categoryQuestions);
+    picked.push(q);
+    usedIds.push(q.id);
+  }
+
+  return picked;
+}
+
+export function generatePlayResultForQuestion(question: Question, history: RecentHistory): PlayResult {
   const verdict = pickVerdict(question, history.verdictIds);
   const footer = pickRandom(shareFooters);
   const afterburn = pickAfterburn(question.categoryId, []);
@@ -94,13 +111,10 @@ export function generatePlayResult(history: RecentHistory): PlayResult {
   const mood = pickRandom(moodsByFamily[verdict.family]);
   const visualVariant = pickRandom(visualVariantsByCategory[question.categoryId]);
 
-  return {
-    question,
-    verdict,
-    afterburn,
-    footer,
-    caption,
-    mood,
-    visualVariant,
-  };
+  return { question, verdict, afterburn, footer, caption, mood, visualVariant };
+}
+
+export function generatePlayResult(history: RecentHistory): PlayResult {
+  const question = pickQuestion(history);
+  return generatePlayResultForQuestion(question, history);
 }
