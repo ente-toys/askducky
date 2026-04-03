@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Ask Ducky is a mobile-first, share-first web toy. Users shake their phone (or tap) to get a privacy-themed question, shake again for Ducky's verdict, then share a polished result card. Built with Next.js 15 App Router, React 19, TypeScript, CSS Modules.
+Ask Ducky is a mobile-first, share-first web toy. Users pick from 3 displayed questions (or shake for a random one) to get Ducky's privacy verdict, then share a polished result card. Built with Next.js 15 App Router, React 19, TypeScript, CSS Modules.
 
 ## Key documentation — read before making changes
 
@@ -31,7 +31,7 @@ npx tsc --noEmit     # Type check
 
 ## Architecture summary
 
-- **Single client component** (`AskDuckyShell.tsx`) manages a 3-phase state machine: idle → question → result
+- **Single client component** (`AskDuckyShell.tsx`) manages a 2-phase state machine: idle → result (question phase was removed — tapping or shaking goes directly to result)
 - **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, correlated moods, and visual variants
 - **All content is bundled** — no backend, no API calls. Fully playable offline after first load
 - **Browser APIs** (shake, haptics, share, export) are each isolated behind small library interfaces in `lib/`
@@ -45,12 +45,14 @@ npx tsc --noEmit     # Type check
 
 ## Design decisions to preserve
 
-- **Share card is the result screen.** Do not add inline text above the card. The card IS the view.
+- **Share card is the result screen.** The card renders outside the main card container (no double bounding box). Buttons sit below it.
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
 - **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
-- **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" button only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
+- **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" link only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
+- **No-scroll viewport fit.** Both home and result screens are constrained to fit within the viewport without page scrolling. Home card uses `max-height: calc(100svh - 120px)` with internal scroll; result card uses `max-height: calc(100svh - 260px)`.
+- **Topbar has ducky + brand link.** Left: clickable "Ask Ducky" with hero ducky (resets to home). Right: "Made with 💚 / ente" linking to `ente.com/?utm_source=askducky`.
 
 ## Mascot and mood illustrations
 
@@ -58,7 +60,7 @@ Ducky mascot illustrations are exported from the Ente Figma file and stored in `
 
 | File | Usage | Figma node |
 |------|-------|------------|
-| `hero.png` | OrbHero on idle/question screens | `5:6184` |
+| `hero.png` | Topbar icon + ShareCard mood fallback | `5:6184` |
 | `smug.png` | DuckyMood for `smug` verdict family | `5:4249` |
 | `horrified.png` | DuckyMood for `horrified` | `5:4032` |
 | `side_eye.png` | DuckyMood for `side_eye` | `5:3806` |

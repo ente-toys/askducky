@@ -2,66 +2,63 @@
 
 ## Overview
 
-Ask Ducky is a single-page, client-only Next.js app with no backend. All content, logic, and assets are bundled into the static build. The app is a 3-state machine driven by shake gestures or button taps.
+Ask Ducky is a single-page, client-only Next.js app with no backend. All content, logic, and assets are bundled into the static build. The app is a 2-state machine driven by question selection, shake gestures, or button taps.
 
 ## State machine
 
 ```
-┌──────────┐  shake/tap   ┌────────────┐  shake/tap   ┌────────────┐
-│   IDLE   │ ──────────►  │  QUESTION  │ ──────────►  │   RESULT   │
-│          │              │            │              │            │
-│ Hero orb │              │ Question   │              │ Share card │
-│ CTA      │              │ Reveal CTA │              │ Share CTA  │
-│ Shake    │              │ New Q skip │              │ Ask again  │
-│ hint     │              │            │              │ Save/Copy  │
-└──────────┘              └────────────┘              └────────────┘
-      ▲                                                     │
-      └─────────────────── "Ask again" ─────────────────────┘
+┌──────────┐  tap question   ┌────────────┐
+│   IDLE   │  or shake       │   RESULT   │
+│          │ ──────────────► │            │
+│ Hero     │                 │ Share card │
+│ 3 Qs    │                 │ Share CTA  │
+│ Shake    │                 │ Ask again  │
+│ hint     │                 │            │
+└──────────┘                 └────────────┘
+      ▲                            │
+      └───── "Ask again" ──────────┘
 ```
 
 **States:**
-- **idle** — Landing screen with hero, branding, shake hint, "Get a question" button
-- **question** — Dominant question text, "Reveal verdict" button, "New question" skip
-- **result** — Share card as the hero view, share/save/copy controls
+- **idle** — Landing screen with headline, 3 tappable question cards, shimmer shake hint, "More questions" button
+- **result** — Share card as the hero view (outside card container), share/ask-again controls below
 
 All state transitions fire haptic feedback on supported devices.
 
 ## Content engine
 
 ```
-pickQuestion(history)
+pickMultipleQuestions(count, history)
   │
-  ├── pickWeightedRandom(categories)      # Category selected by weight
-  ├── filterRecent(categoryQuestions)      # Avoid last 10 played questions
-  └── pickRandom(filtered)                # Random from remaining
-  
-pickVerdict(question, recentVerdictIds)
-  │
-  ├── resolveFamily(question)             # Severity + preferred families → verdict family
-  │     ├── high severity + hard_no pref  → 60% hard_no, 40% random preferred
-  │     ├── low severity + soft_roast     → 55% soft_roast, 45% random preferred
-  │     └── otherwise                     → random from preferred families
-  │
-  ├── Filter by family                    # All verdicts in resolved family
-  ├── Prefer category-specific (70%)      # Lines tagged with question's category
-  ├── Fall back to global pool            # Lines with no category tag
-  └── filterRecent → pickRandom
+  ├── Loop `count` times:
+  │     ├── pickWeightedRandom(categories)
+  │     ├── filterRecent(categoryQuestions, usedIds)
+  │     └── pickRandom(filtered) → accumulate, track used IDs
+  └── Return array of unique questions
 
-pickAfterburn(categoryId)
+generatePlayResultForQuestion(question, history)
   │
-  ├── Prefer category-specific (70%)      # Lines tagged with question's category
-  ├── Fall back to global pool
-  └── filterRecent → pickRandom
+  ├── pickVerdict(question, recentVerdictIds)
+  │     ├── resolveFamily(question)
+  │     │     ├── high severity + hard_no pref  → 60% hard_no, 40% random preferred
+  │     │     ├── low severity + soft_roast     → 55% soft_roast, 45% random preferred
+  │     │     └── otherwise                     → random from preferred families
+  │     ├── Filter by family
+  │     ├── Prefer category-specific (70%)
+  │     ├── Fall back to global pool
+  │     └── filterRecent → pickRandom
+  │
+  ├── pickAfterburn(categoryId)
+  │     ├── Prefer category-specific (70%)
+  │     ├── Fall back to global pool
+  │     └── filterRecent → pickRandom
+  │
+  ├── Mood selection → pickRandom(moodsByFamily[verdict.family])
+  └── Visual variant, footer, caption selection
 
-Mood selection
+generatePlayResult(history)
   │
-  └── pickRandom(moodsByFamily[verdict.family])
-      # Mood correlates to verdict family:
-      #   hard_no     → horrified, disappointed, suspicious
-      #   cautious_maybe → suspicious, side_eye, deeply_tired
-      #   approved    → impressed, smug
-      #   chaos       → chaotic, horrified, side_eye
-      #   soft_roast  → side_eye, smug, deeply_tired
+  └── pickQuestion(history) → generatePlayResultForQuestion(question, history)
 ```
 
 **Result payload:** `{ question, verdict, afterburn, footer, caption, mood, visualVariant }`
@@ -105,26 +102,25 @@ RootLayout (server)
       └── HomePage (server)
           └── AskDuckyShell (client)
               ├── ServiceWorkerRegister
-              ├── TopBar ("Ask Ducky" badge)
-              └── Card (phase-switched)
-                  ├── idle:
-                  │   ├── Hero text (eyebrow, title, subtitle)
-                  │   ├── OrbHero (SVG placeholder)
-                  │   ├── MotionPermissionGate
-                  │   └── "Get a question" button
-                  ├── question:
-                  │   ├── Question text block
-                  │   ├── OrbHero
-                  │   ├── "Reveal verdict" button
-                  │   └── "New question" button
-                  └── result:
+              ├── TopBar
+              │   ├── Left: clickable ducky + "Ask Ducky" (resets to idle)
+              │   └── Right: "Made with 💚 / ente" → ente.com
+              └── Phase-switched content:
+                  ├── idle (inside <section.card>):
+                  │   ├── Hero text (title, subtitle)
+                  │   ├── Shake hint (shimmer animation)
+                  │   ├── Enable shake link (iOS only)
+                  │   ├── 3 × QuestionItem buttons
+                  │   └── "More questions" button (primary)
+                  └── result (outside card, in shell):
                       ├── ShareCard
-                      │   ├── Header (label + DuckyMood)
-                      │   ├── Content (question, verdict, afterburn)
-                      │   └── Footer (footer line + URL)
-                      ├── "Share this" button
-                      ├── "Ask again" button
-                      └── "Save image" / "Copy link" buttons
+                      │   ├── Header ("Ask Ducky" label)
+                      │   ├── QuestionWrap (frosted background)
+                      │   ├── DuckyMood (centered, 100px)
+                      │   ├── Content (verdict, afterburn)
+                      │   └── Footer ("Ducky is judging..." + URL)
+                      ├── "Share this" button (primary)
+                      └── "Ask again" button (secondary)
 ```
 
 ## Library interfaces
@@ -138,6 +134,7 @@ Each browser-dependent concern is isolated behind a small interface in `lib/`:
 | `share.ts` | 4-tier share fallback chain | navigator.share, navigator.clipboard |
 | `exportImage.ts` | DOM → PNG export + download | html-to-image, URL.createObjectURL |
 | `storage.ts` | History persistence | localStorage |
+| `contentEngine.ts` | Question picking, result generation | — |
 
 ## Share flow
 
@@ -161,8 +158,10 @@ handleShare()
 
 - **Content:** Bundled in the JS bundle. No runtime API calls.
 - **Service worker:** `public/sw.js`
-  - Pre-caches `/`, `/manifest.webmanifest`, `/icon.svg` on install
-  - Same-origin requests: network-first, cache on success, serve from cache on failure
+  - Cache name: `ask-ducky-v2` (bumped on breaking changes to invalidate old caches)
+  - `skipWaiting()` + `clients.claim()` for immediate activation on update
+  - Pre-cached assets (`/`, manifest, icon): **network-first**, cache fallback for offline
+  - Same-origin JS/CSS chunks: fetch-then-cache with offline fallback
   - External requests: network only
 - **PWA manifest:** Standalone display, dark theme, Ente green accent
 
@@ -173,13 +172,15 @@ handleShare()
 - **Font loading:** Inter loaded via `next/font/google`, injected as `--font-inter` CSS variable
 - **Reduced motion:** Global `prefers-reduced-motion` media query disables all animations
 - **Share card variants:** 20 category-specific CSS classes with unique gradient/texture backgrounds
+- **Shimmer animation:** Green/gold gradient sweep on the shake hint text
+- **Viewport fit:** Both screens use `max-height` with `svh` units to prevent page scrolling
 
 ## Design tokens (current placeholders)
 
 | Token | Value | Source |
 |-------|-------|--------|
 | `--bg` | `#07110b` | Ente-adjacent dark green |
-| `--accent` | `#00bc45` | Ente icon green |
+| `--accent` | `#08C225` | Ente primary green (confirmed from Figma) |
 | `--warning` | `#ffca72` | Ducky amber |
 | `--text` | `#f4fff5` | Near-white |
 | `--muted` | `#a9c8b2` | Desaturated green |

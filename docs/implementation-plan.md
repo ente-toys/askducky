@@ -4,7 +4,7 @@ This is the reviewed and approved execution plan for V1. It incorporates all fee
 
 ## Summary
 
-Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app centered on a fast three-step loop: idle, question, result/share. V1 ships as a launchable content-rich build with four priorities: official-brand visual fidelity, a solid content engine, reliable motion-plus-button interaction, and a polished share card that works online and offline after first load.
+Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app centered on a fast two-step loop: idle (pick a question) → result/share. V1 ships as a launchable content-rich build with four priorities: official-brand visual fidelity, a solid content engine, reliable motion-plus-button interaction, and a polished share card that works online and offline after first load.
 
 ## Status
 
@@ -12,7 +12,7 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 |------|--------|-------|
 | Content engine | Done | Category-weighted selection, repeat avoidance, layered verdict lookup |
 | Content authoring | Done | 200 questions, 156 verdicts, 75 afterburns, all launch targets met |
-| 3-state UI | Done | Idle, question, result with animations |
+| 2-state UI | Done | Idle (3 question cards) → result (no intermediate question phase) |
 | Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop |
 | Haptics | Done | 3 patterns: question reveal, verdict reveal, share success |
 | Share flow | Done | 4-tier fallback chain with DOM-to-image failure handling |
@@ -60,6 +60,30 @@ Switched from `output: "standalone"` to `output: "export"` for GitHub Pages depl
 
 ### Motion permission auto-detection
 The "Enable shake" button was showing on all platforms. Fixed by calling `requestMotionPermission()` on mount — on Android/desktop it resolves immediately to "granted" (no permission API), hiding the button. On iOS the button remains since Safari requires a user gesture.
+
+### UX redesign: 2-state flow with question cards
+The original 3-state flow (idle → question → result) added an unnecessary intermediate step. Redesigned to 2 states:
+- **Idle**: Shows 3 randomly selected question cards. User taps one to go directly to result, or shakes for a random question → result. "More questions" refreshes the 3 cards.
+- **Result**: Share card renders outside the main card container (no double bounding box). "Save image" and "Copy link" buttons removed — just "Share this" + "Ask again".
+
+### Topbar redesign
+Replaced the plain "Ask Ducky" badge with: left side = clickable ducky icon + "Ask Ducky" text (resets to home); right side = "Made with 💚" (small) + "ente" (large, green) linking to `ente.com/?utm_source=askducky`.
+
+### Share card restructured
+- Removed 1:1 aspect ratio, replaced with `max-height: calc(100svh - 260px)` for viewport fit
+- DuckyMood moved from small top-right (92px) to centered (100px) between question and verdict
+- Question text gets a frosted background panel to stand out
+- Footer text changed from random share footers to fixed "Ducky is judging your privacy choices"
+- Verdict and afterburn are center-aligned
+
+### No-scroll viewport fit
+Both home and result screens are constrained to the viewport height to prevent page scrolling on mobile. Home card uses `max-height: calc(100svh - 120px)` with internal `overflow-y: auto`; result card uses `max-height: calc(100svh - 260px)`.
+
+### Service worker: network-first and auto-update
+The original SW used cache-first for pre-cached assets (including HTML), causing new deploys to be invisible. Fixed by:
+- Switching to network-first with cache fallback for offline
+- Adding `skipWaiting()` + `clients.claim()` for immediate SW activation
+- Bumping cache name on breaking changes to invalidate old caches
 
 ## What's still needed for launch
 

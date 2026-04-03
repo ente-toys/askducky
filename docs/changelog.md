@@ -114,3 +114,49 @@ Figma MCP authenticated, design system explored, mascot assets exported, GitHub 
 **Problem:** The motion permission button appeared on Android and desktop where no permission is needed.
 **Fix:** Call `requestMotionPermission()` on mount. On non-iOS platforms it resolves immediately to "granted" (no `requestPermission` API), hiding the button. iOS still shows it since Safari requires a user gesture.
 **Files:** `components/AskDuckyShell.tsx`
+
+## Round 4: UX redesign
+
+Major UX overhaul to simplify the flow and improve visual hierarchy.
+
+### Fixed
+
+#### 20. 3-state flow had unnecessary intermediate step (Major)
+**Problem:** The idle → question → result flow required two interactions before seeing a verdict. The question phase showed the question text + OrbHero + "Reveal verdict" button, adding friction without value.
+**Fix:** Removed the question phase entirely. Tapping a question card or shaking goes directly to the result screen. The idle screen now shows 3 randomly selected question cards that users can tap. Added `pickMultipleQuestions()` and `generatePlayResultForQuestion()` to the content engine.
+**Files:** `components/AskDuckyShell.tsx`, `lib/contentEngine.ts`
+
+#### 21. Topbar was plain text badge (Significant)
+**Problem:** The topbar only showed "Ask Ducky" in a pill badge with no branding or navigation.
+**Fix:** Left side: clickable ducky hero image (36px) + "Ask Ducky" text (resets to home). Right side: "Made with 💚" (small) + "ente" (large, green accent) linking to `ente.com/?utm_source=askducky`.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 22. Result screen had double bounding box (Significant)
+**Problem:** The share card (with its own border/background) was nested inside the main `.card` container (also with border/background), wasting space and creating visual redundancy.
+**Fix:** Moved the result phase content outside the `<section>` card container. Share card and buttons now render directly in the shell with no wrapper card.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 23. Share card clipped content at 3:4 aspect ratio (Significant)
+**Problem:** Changing the share card from 1:1 to 3:4 aspect ratio caused the verdict text to be clipped by `overflow: hidden` when content was long.
+**Fix:** Removed fixed aspect ratio. Used `max-height: calc(100svh - 260px)` with flexible grid rows (`minmax(0, 1fr)` for the mood row). DuckyMood shrinks gracefully on smaller screens. Increased padding (28px) and gaps (18px) for more breathing room.
+**Files:** `components/ShareCard.module.css`
+
+#### 24. Share card layout restructured (Major)
+**Problem:** DuckyMood was small (92px) in the top-right header. Question text had no visual distinction from other content.
+**Fix:** DuckyMood moved to centered position (100px) between question and verdict. Question text wrapped in a frosted background panel (`rgba(255,255,255,0.06)` + border). Verdict and afterburn are center-aligned. Footer text changed from random share footers to fixed "Ducky is judging your privacy choices".
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`, `components/DuckyMood.tsx`
+
+#### 25. Home screen question cards too small (Minor)
+**Problem:** Question cards had small padding (16px) and font size (1rem), feeling cramped.
+**Fix:** Increased padding to 20px 22px, font size to 1.2rem, border radius to `--radius-lg`. "More questions" button uses primary (green) style. "Shake to ask a random question" is center-aligned with animated green/gold shimmer gradient.
+**Files:** `components/AskDuckyShell.module.css`
+
+#### 26. Pages scrolled on mobile (Minor)
+**Problem:** Both home and result screens could extend beyond the viewport, requiring page scrolling.
+**Fix:** Home card uses `max-height: calc(100svh - 120px)` with `overflow-y: auto` for internal scrolling. Result card uses `max-height: calc(100svh - 260px)`. Removed `min-height: 72vh` and mobile media query.
+**Files:** `components/AskDuckyShell.module.css`, `components/ShareCard.module.css`
+
+#### 27. Service worker served stale cache after deploy (Significant)
+**Problem:** The SW used cache-first for pre-cached assets including the HTML page. New deploys were invisible until users manually cleared site data.
+**Fix:** Bumped cache name to `ask-ducky-v2`. Pre-cached assets now use network-first with cache fallback. Added `skipWaiting()` + `clients.claim()` for immediate activation of new service worker versions.
+**Files:** `public/sw.js`
