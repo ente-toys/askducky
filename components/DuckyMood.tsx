@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { DuckyMood } from "@/lib/types";
 
 const moodImageMap: Record<DuckyMood, string> = {
@@ -16,8 +17,7 @@ export function DuckyMood({ mood }: { mood: DuckyMood }) {
     <div
       aria-label={`Ducky mood: ${mood.replace(/_/g, " ")}`}
       style={{
-        display: "grid",
-        placeItems: "center",
+        position: "relative",
         width: 92,
         height: 92,
         borderRadius: 24,
@@ -28,14 +28,11 @@ export function DuckyMood({ mood }: { mood: DuckyMood }) {
         overflow: "hidden",
       }}
     >
-      <img
+      <Image
         src={moodImageMap[mood]}
         alt={mood.replace(/_/g, " ")}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
+        fill
+        style={{ objectFit: "cover" }}
       />
     </div>
   );
