@@ -5,7 +5,8 @@ import { useEffect } from "react";
 export function ServiceWorkerRegister() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      void navigator.serviceWorker.register("/sw.js");
+      const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
+      void navigator.serviceWorker.register(`${base}/sw.js`, { scope: `${base}/` });
     }
   }, []);
 

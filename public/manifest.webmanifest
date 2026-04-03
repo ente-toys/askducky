@@ -4,11 +4,11 @@
   "description": "Shake for a privacy verdict.",
   "display": "standalone",
   "background_color": "#07110b",
-  "theme_color": "#00bc45",
-  "start_url": "/",
+  "theme_color": "#08C225",
+  "start_url": "/askducky/",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/askducky/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
