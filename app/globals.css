@@ -1,0 +1,60 @@
+:root {
+  --bg: #07110b;
+  --bg-elevated: rgba(14, 25, 17, 0.88);
+  --surface: rgba(16, 30, 20, 0.78);
+  --surface-strong: rgba(22, 40, 28, 0.92);
+  --text: #f4fff5;
+  --muted: #a9c8b2;
+  --accent: #08C225;
+  --accent-soft: rgba(8, 194, 37, 0.16);
+  --line: rgba(169, 200, 178, 0.16);
+  --warning: #ffca72;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --font-display: var(--font-inter), "Inter", "Segoe UI", sans-serif;
+  --font-body: var(--font-inter), "Inter", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(8, 194, 37, 0.18), transparent 28%),
+    linear-gradient(180deg, #08110b 0%, #050805 100%);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 202, 114, 0.1), transparent 24%),
+    radial-gradient(circle at 80% 10%, rgba(8, 194, 37, 0.12), transparent 30%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
