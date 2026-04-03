@@ -7,13 +7,13 @@ export function vibrate(pattern: number | number[]) {
 }
 
 export function hapticForQuestionReveal() {
-  vibrate(18);
+  vibrate(28);
 }
 
 export function hapticForVerdictReveal() {
-  vibrate([16, 32, 22]);
+  vibrate([25, 50, 34]);
 }
 
 export function hapticForShareSuccess() {
-  vibrate([12, 24, 12]);
+  vibrate([19, 37, 19]);
 }

@@ -102,6 +102,14 @@ export interface PlayResult {
   footer: ShareFooter;
   caption: ShareCaptionTemplate;
   visualVariant: string;
+  dripConfig: DripConfig;
+}
+
+export interface DripConfig {
+  cap: number | null;
+  shoe: number | null;
+  shade: number | null;
+  acc: number | null;
 }
 
 export interface RecentHistory {

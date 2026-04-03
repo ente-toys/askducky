@@ -22,9 +22,11 @@
 }
 
 html {
-  background:
-    radial-gradient(circle at top, rgba(8, 194, 37, 0.18), transparent 28%),
-    linear-gradient(180deg, #08110b 0%, #050805 100%);
+  --blob-1: rgba(8, 194, 37, 0.38);
+  --blob-2: rgba(255, 202, 114, 0.28);
+  --blob-3: rgba(8, 194, 37, 0.26);
+  --blob-4: rgba(8, 194, 37, 0.12);
+  background: #07110b;
 }
 
 body {
@@ -33,8 +35,18 @@ body {
   font-family: var(--font-body);
   color: var(--text);
   background:
-    radial-gradient(circle at 20% 0%, rgba(255, 202, 114, 0.1), transparent 24%),
-    radial-gradient(circle at 80% 10%, rgba(8, 194, 37, 0.12), transparent 30%);
+    radial-gradient(ellipse 80% 55% at 10% 0%, var(--blob-2), transparent),
+    radial-gradient(ellipse 65% 50% at 90% 20%, var(--blob-3), transparent),
+    radial-gradient(ellipse 60% 45% at 40% 50%, var(--blob-4), transparent),
+    radial-gradient(ellipse 80% 60% at 60% 95%, var(--blob-1), transparent);
+  background-size: 200% 200%;
+  animation: bgDrift 40s ease-in-out infinite;
+}
+
+@keyframes bgDrift {
+  0%, 100% { background-position: 0% 0%; }
+  33% { background-position: 50% 20%; }
+  66% { background-position: 20% 50%; }
 }
 
 button,

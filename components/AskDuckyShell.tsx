@@ -7,6 +7,7 @@ import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { generatePlayResult, generatePlayResultForQuestion, pickMultipleQuestions } from "@/lib/contentEngine";
 import { downloadBlob, exportNodeToPng } from "@/lib/exportImage";
 import {
+  hapticForQuestionReveal,
   hapticForShareSuccess,
   hapticForVerdictReveal,
 } from "@/lib/haptics";
@@ -20,6 +21,24 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 type Phase = "idle" | "result";
 type MotionState = "unknown" | "granted" | "denied" | "unsupported";
 
+const bgThemes = [
+  { blob1: "rgba(8, 194, 37, 0.38)", blob2: "rgba(255, 202, 114, 0.28)", blob3: "rgba(8, 194, 37, 0.26)", blob4: "rgba(8, 194, 37, 0.12)" },         // emerald
+  { blob1: "rgba(0, 220, 200, 0.38)", blob2: "rgba(170, 80, 250, 0.28)", blob3: "rgba(60, 210, 230, 0.26)", blob4: "rgba(100, 60, 220, 0.12)" },     // aurora
+  { blob1: "rgba(255, 120, 40, 0.38)", blob2: "rgba(250, 60, 140, 0.28)", blob3: "rgba(255, 170, 50, 0.26)", blob4: "rgba(240, 80, 100, 0.12)" },    // sunset
+  { blob1: "rgba(20, 130, 255, 0.38)", blob2: "rgba(0, 220, 240, 0.28)", blob3: "rgba(50, 110, 255, 0.26)", blob4: "rgba(0, 180, 220, 0.12)" },      // ocean
+  { blob1: "rgba(30, 255, 80, 0.42)", blob2: "rgba(250, 40, 210, 0.28)", blob3: "rgba(50, 255, 100, 0.24)", blob4: "rgba(200, 40, 180, 0.12)" },     // neon
+  { blob1: "rgba(255, 190, 40, 0.38)", blob2: "rgba(255, 225, 110, 0.26)", blob3: "rgba(250, 175, 30, 0.26)", blob4: "rgba(255, 200, 80, 0.12)" },   // golden
+  { blob1: "rgba(160, 60, 250, 0.38)", blob2: "rgba(60, 120, 255, 0.28)", blob3: "rgba(230, 60, 210, 0.26)", blob4: "rgba(100, 80, 240, 0.12)" },    // cosmic
+];
+
+function applyBgTheme(theme: typeof bgThemes[number]) {
+  const root = document.documentElement;
+  root.style.setProperty("--blob-1", theme.blob1);
+  root.style.setProperty("--blob-2", theme.blob2);
+  root.style.setProperty("--blob-3", theme.blob3);
+  root.style.setProperty("--blob-4", theme.blob4);
+}
+
 export function AskDuckyShell() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [result, setResult] = useState<PlayResult | null>(null);
@@ -31,6 +50,10 @@ export function AskDuckyShell() {
   const cardRef = useRef<HTMLDivElement>(null);
   const historyRef = useRef(loadHistory());
   const resultRef = useRef<PlayResult | null>(null);
+
+  useEffect(() => {
+    applyBgTheme(bgThemes[Math.floor(Math.random() * bgThemes.length)]);
+  }, []);
 
   useEffect(() => {
     const saved = historyRef.current.motionPermission ?? "unknown";
@@ -89,6 +112,7 @@ export function AskDuckyShell() {
   }
 
   function selectQuestion(question: Question) {
+    hapticForQuestionReveal();
     goToResult(generatePlayResultForQuestion(question, historyRef.current));
   }
 
@@ -101,6 +125,7 @@ export function AskDuckyShell() {
     setFeedback("");
     setImageFallbackMode(false);
     setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
+    applyBgTheme(bgThemes[Math.floor(Math.random() * bgThemes.length)]);
   }
 
   async function handleMotionRequest() {

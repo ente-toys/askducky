@@ -7,6 +7,7 @@ import {
   verdicts,
   visualVariantsByCategory,
 } from "@/app/data/content";
+import { randomDripConfig } from "@/lib/duckyDrip";
 import { pickRandom, pickWeightedRandom } from "@/lib/randomize";
 import type { DuckyMood, PlayResult, Question, RecentHistory, VerdictFamily, VerdictLine } from "@/lib/types";
 
@@ -111,7 +112,9 @@ export function generatePlayResultForQuestion(question: Question, history: Recen
   const mood = pickRandom(moodsByFamily[verdict.family]);
   const visualVariant = pickRandom(visualVariantsByCategory[question.categoryId]);
 
-  return { question, verdict, afterburn, footer, caption, mood, visualVariant };
+  const dripConfig = randomDripConfig();
+
+  return { question, verdict, afterburn, footer, caption, mood, visualVariant, dripConfig };
 }
 
 export function generatePlayResult(history: RecentHistory): PlayResult {

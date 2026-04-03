@@ -1,6 +1,8 @@
 import styles from "./ShareCard.module.css";
-import { DuckyMood } from "@/components/DuckyMood";
+import { DuckyDrip } from "@/components/DuckyDrip";
 import type { PlayResult } from "@/lib/types";
+
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function ShareCard({
   result,
@@ -18,7 +20,7 @@ export function ShareCard({
         <p className={styles.question}>{result.question.text}</p>
       </div>
       <div className={styles.moodWrap}>
-        <DuckyMood mood={result.mood} size={100} />
+        <DuckyDrip config={result.dripConfig} size={140} />
       </div>
       <div className={styles.content}>
         <h3 className={styles.verdict}>{result.verdict.text}</h3>
@@ -27,9 +29,19 @@ export function ShareCard({
           {fallbackMode ? " Plain fallback active." : ""}
         </p>
       </div>
+      <div className={styles.divider} />
       <div className={styles.footer}>
-        <span className={styles.label}>Ducky is judging your privacy choices</span>
-        <span className={styles.url}>askducky.app</span>
+        <span className={styles.tagline}>Ducky is judging your privacy choices</span>
+        <div className={styles.footerBrand}>
+          <img
+            src={`${basePath}/ducky/hero.png`}
+            width={24}
+            height={24}
+            alt=""
+            className={styles.footerDucky}
+          />
+          <span className={styles.footerName}>AskDucky.app</span>
+        </div>
       </div>
     </div>
   );
