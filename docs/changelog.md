@@ -191,3 +191,13 @@ Added randomized Ducky Drip characters, vibrant background themes, haptic feedba
 **Problem:** The share card had an "Ask Ducky" label at the top, duplicating what the topbar already shows. Wasted vertical space.
 **Fix:** Removed the header row from the share card. Updated grid template rows. Increased padding (28px → 32px), gap (18px → 24px), and DuckyDrip size (100px → 180px) to use the freed space for better visual presence.
 **Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`
+
+#### 33. Custom domain askducky.app (Major)
+**Problem:** App was served from `ente-toys.github.io/askducky/` requiring a `/askducky` basePath that complicated all asset references.
+**Fix:** Added `public/CNAME` for `askducky.app`. Made basePath conditional in `next.config.ts` — checks `CUSTOM_DOMAIN` env var (set as GitHub Actions repo variable). When set, basePath is removed and app serves from root. Service worker auto-detects its base path from `self.location.pathname`. Manifest uses relative paths. Bumped SW cache to `ask-ducky-v3`.
+**Files:** `next.config.ts`, `public/CNAME`, `public/sw.js`, `public/manifest.webmanifest`, `.github/workflows/deploy.yml`
+
+#### 34. Favicon was generic SVG, not visible at small sizes (Minor)
+**Problem:** `public/icon.svg` was a generic icon. After switching to the Ducky Drip base SVG, the original 713×937 viewBox had too much empty space — the ducky was tiny at favicon sizes.
+**Fix:** Moved icon to `app/icon.svg` (Next.js App Router convention). Cropped viewBox to `75 240 580 560` to tightly frame the ducky for clear visibility at 16-32px.
+**Files:** `app/icon.svg`

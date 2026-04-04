@@ -160,8 +160,9 @@ handleShare()
 
 - **Content:** Bundled in the JS bundle. No runtime API calls.
 - **Service worker:** `public/sw.js`
-  - Cache name: `ask-ducky-v2` (bumped on breaking changes to invalidate old caches)
+  - Cache name: `ask-ducky-v3` (bumped on breaking changes to invalidate old caches)
   - `skipWaiting()` + `clients.claim()` for immediate activation on update
+  - Auto-detects its base path from `self.location.pathname` (works with or without basePath)
   - Pre-cached assets (`/`, manifest, icon): **network-first**, cache fallback for offline
   - Same-origin JS/CSS chunks: fetch-then-cache with offline fallback
   - External requests: network only

@@ -100,6 +100,12 @@ The page background was a static dark green with faint gradients. Added 7 color 
 ### Share card footer redesign
 Replaced the plain "askducky.app" URL text with a branded footer: ducky hero icon (24px) + "AskDucky.app" in bold (matching topbar style). Added a horizontal divider line between the afterburn text and footer. Removed the redundant "Ask Ducky" header from the share card since the topbar already shows it.
 
+### Custom domain askducky.app with conditional basePath
+Switched from `ente-toys.github.io/askducky/` to custom domain `askducky.app`. The basePath in `next.config.ts` is conditional — reads `CUSTOM_DOMAIN` env var (set as a GitHub Actions repo variable). When set, basePath drops to `""` and the app serves from root. The SW auto-detects its base path from `self.location.pathname` so it works in both modes. CNAME file in `public/` ensures GitHub Pages serves the custom domain.
+
+### Favicon: cropped Ducky Drip base
+Replaced the generic icon with the Ducky Drip base SVG (`app/icon.svg`). Cropped the viewBox from 713×937 to 580×560 centered on the ducky so it renders clearly at favicon sizes (16-32px).
+
 ## What's still needed for launch
 
 1. **Visual QA on share card** — Test PNG export quality across devices, verify card looks good when shared on social/chat

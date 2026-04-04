@@ -27,7 +27,8 @@ npx tsc --noEmit     # Type check
 - **Repo:** https://github.com/ente-toys/askducky
 - **Auto-deploy:** Every push to `main` triggers `.github/workflows/deploy.yml`
 - **Static export:** `output: "export"` in `next.config.ts`, served from `out/`
-- **No basePath:** Custom domain serves from root. `NEXT_PUBLIC_BASE_PATH` is `""`. Do NOT use `next/image` for static assets (it doesn't work with `output: "export"` + `unoptimized: true`). Use plain `<img>` instead.
+- **Conditional basePath:** `next.config.ts` checks `process.env.CUSTOM_DOMAIN`. When set (GitHub Actions repo variable), basePath is `""` for `askducky.app`. When unset, falls back to `/askducky` for `ente-toys.github.io`. All static asset references in components use `process.env.NEXT_PUBLIC_BASE_PATH` prefix. Do NOT use `next/image` (doesn't work with `output: "export"` + `unoptimized: true`). Use plain `<img>` instead.
+- **Favicon:** `app/icon.svg` — cropped Ducky Drip base SVG (viewBox tightly framing the ducky for visibility at 16-32px).
 
 ## Architecture summary
 
