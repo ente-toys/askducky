@@ -262,3 +262,69 @@ Major visual redesign to replace the dark "vibe-coded" aesthetic with a warm, in
 **Problem:** The "ente" text in the topbar used green accent color, and the heart emoji was green. Multiple accent colors made the UI feel busy.
 **Fix:** Changed "ente" to charcoal (`var(--text)`) and heart emoji to red ❤️. Reduces color palette to: cream, white, charcoal, muted gray, coral (action), and Ente green (accent only).
 **Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+## Round 7: Full question list, shake everywhere, share card polish
+
+Replaced the 3-card question picker with a scrollable list of all 200 shuffled questions. Enabled shake on both screens. Polished share card export with hidden-until-export footer. Cleaned up copy and removed dead code.
+
+### Fixed
+
+#### 46. Only 3 questions shown at a time (Major)
+**Problem:** The idle screen showed only 3 randomly selected questions with a "More questions" button to refresh. Users had to repeatedly tap "More questions" to browse content, and couldn't scan the full question pool.
+**Fix:** Replaced the 3-card picker with a scrollable list of all 200 questions in shuffled random order (273px max-height). Removed the "More questions" button. Added `shuffleAllQuestions()` to content engine, replacing `pickMultipleQuestions()`.
+**Files:** `components/AskDuckyShell.tsx`, `lib/contentEngine.ts`
+
+#### 47. Shake only worked on idle screen (Significant)
+**Problem:** The shake effect had `phase` in its dependency array and only triggered `goToResult()` when `phase === "idle"`. Users on the result screen had to tap "Ask again" before shaking for a new result.
+**Fix:** Removed `phase` from the shake effect dependency. Shake now works on both idle and result screens, going directly to a new result from either state.
+**Files:** `components/AskDuckyShell.tsx`
+
+#### 48. Share card footer visible in web view (Significant)
+**Problem:** The share card footer (divider line + AskDucky.app + Made with ❤️ ente) was always visible, duplicating information already shown in the topbar and creating visual clutter.
+**Fix:** Footer is hidden by default in web view and shown only in the exported image via a `data-export-mode` attribute set during export. Export uses `lockWrapperHeight()` to minimize the footer flash when it briefly appears for capture.
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`, `components/AskDuckyShell.tsx`
+
+#### 49. Share card header missing tagline (Minor)
+**Problem:** The share card had no context about what Ask Ducky is. When shared as an image, recipients had no indication of the app's purpose.
+**Fix:** Added "Privacy advice from a judgmental duck" tagline at the top of the share card header.
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`
+
+#### 50. DuckyDrip hero size inconsistency (Minor)
+**Problem:** The idle screen hero DuckyDrip was 150px while the share card DuckyDrip was 140px, creating visual inconsistency between screens.
+**Fix:** Both normalized to 180px.
+**Files:** `components/AskDuckyShell.tsx`, `components/ShareCard.module.css`
+
+#### 51. Subtitle and shake hint styling polish (Minor)
+**Problem:** The subtitle "Privacy advice from a judgmental duck" was too light and small. The shake hint lacked visual emphasis.
+**Fix:** Subtitle made darker and 10% larger. Shake hint now has colorful shimmer animation (coral to green to coral), font-weight 600, with "or pick one" sub-text below. Shimmer also added to result screen below buttons.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 52. Topbar text updated (Minor)
+**Problem:** Topbar showed "Ask Ducky" which didn't match the domain branding.
+**Fix:** Changed to "AskDucky.app".
+**Files:** `components/AskDuckyShell.tsx`
+
+#### 53. Verbose feedback messages (Minor)
+**Problem:** Share feedback messages were unnecessarily long ("Image shared successfully!", "Link copied to clipboard!"). Some messages were shown for actions that didn't need confirmation (shake enabled, image saved).
+**Fix:** Shortened to "Shared!", "Link copied!", etc. Removed unnecessary messages for shake enabled, image saved, and detailed share confirmations. Removed "Plain fallback active." from share card.
+**Files:** `components/AskDuckyShell.tsx`
+
+#### 54. Manifest and share copy cleanup (Minor)
+**Problem:** Manifest name/short_name was "Ask Ducky" (with space), share title was "Ask Ducky", share caption #5 used "vibes" which felt off-brand.
+**Fix:** Manifest name/short_name changed to "AskDucky", description updated to match tagline. Share title changed to "AskDucky". Share caption #5: "vibes" replaced with "fun".
+**Files:** `public/manifest.webmanifest`, `components/AskDuckyShell.tsx`, `app/data/content.ts`
+
+#### 55. Dead code: fallbackMode and imageFallbackMode (Minor)
+**Problem:** `fallbackMode` prop on ShareCard and `imageFallbackMode` state in AskDuckyShell were no longer used after share flow simplification.
+**Fix:** Removed both. Cleaned up related conditional rendering.
+**Files:** `components/ShareCard.tsx`, `components/AskDuckyShell.tsx`
+
+#### 56. Export background color wrong (Minor)
+**Problem:** The html-to-image export used dark `#07110b` as the background color, a leftover from the dark theme era.
+**Fix:** Changed export background color to cream `#f7f5f0` to match the current warm light theme.
+**Files:** `components/AskDuckyShell.tsx`
+
+#### 57. Question card font size inconsistency (Minor)
+**Problem:** Home screen question cards and share card question text used different font sizes and line heights.
+**Fix:** Both normalized to `1rem` / `1.4` line-height.
+**Files:** `components/AskDuckyShell.module.css`, `components/ShareCard.module.css`

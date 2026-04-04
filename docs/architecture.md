@@ -11,30 +11,27 @@ Ask Ducky is a single-page, client-only Next.js app with no backend. All content
 │   IDLE   │  or shake       │   RESULT   │
 │          │ ──────────────► │            │
 │ Hero     │                 │ Share card │
-│ 3 Qs    │                 │ Share CTA  │
+│ All Qs  │                 │ Share CTA  │
 │ Shake    │                 │ Ask again  │
-│ hint     │                 │            │
+│ hint     │  shake          │ Shake hint │
 └──────────┘                 └────────────┘
-      ▲                            │
+      ▲                            │ shake
       └───── "Ask again" ──────────┘
+              or shake
 ```
 
 **States:**
-- **idle** — Landing screen with headline, 3 tappable question cards, shimmer shake hint, "More questions" button
-- **result** — Share card as the hero view (outside card container), share/ask-again controls below
+- **idle** — Hero DuckyDrip (180px), subtitle "Privacy advice from a judgmental duck", shimmer shake hint with "or pick one" sub-text, scrollable list of all 200 questions (shuffled, 273px max-height)
+- **result** — Share card as the hero view (outside card container), "Share the advice" + "Ask Ducky again" buttons side-by-side, shimmer shake hint below
 
-All state transitions fire haptic feedback on supported devices.
+Shake triggers a new result from both screens (no phase dependency). All state transitions fire haptic feedback on supported devices.
 
 ## Content engine
 
 ```
-pickMultipleQuestions(count, history)
+shuffleAllQuestions()
   │
-  ├── Loop `count` times:
-  │     ├── pickWeightedRandom(categories)
-  │     ├── filterRecent(categoryQuestions, usedIds)
-  │     └── pickRandom(filtered) → accumulate, track used IDs
-  └── Return array of unique questions
+  └── Return all 200 questions in shuffled random order
 
 generatePlayResultForQuestion(question, history)
   │
@@ -104,24 +101,27 @@ RootLayout (server)
           └── AskDuckyShell (client)
               ├── ServiceWorkerRegister
               ├── TopBar
-              │   ├── Left: clickable ducky + "Ask Ducky" (resets to idle)
-              │   └── Right: "Made with 💚 / ente" → ente.com
+              │   ├── Left: clickable ducky + "AskDucky.app" (resets to idle)
+              │   └── Right: "Made with ❤️ / ente" → ente.com
               └── Phase-switched content:
-                  ├── idle (inside <section.card>):
-                  │   ├── Hero text (title, subtitle)
-                  │   ├── Shake hint (shimmer animation)
+                  ├── idle (no card container, flows on cream):
+                  │   ├── Hero DuckyDrip (180px, randomized)
+                  │   ├── Subtitle "Privacy advice from a judgmental duck"
+                  │   ├── Shake hint (coral→green→coral shimmer, font-weight 600)
+                  │   ├── "or pick one" sub-text
                   │   ├── Enable shake link (iOS only)
-                  │   ├── 3 × QuestionItem buttons
-                  │   └── "More questions" button (primary)
+                  │   └── Scrollable question list (all 200 shuffled, 273px max-height)
                   └── result (outside card, in shell):
                       ├── ShareCard
-                      │   ├── QuestionWrap (frosted background)
+                      │   ├── Header tagline "Privacy advice from a judgmental duck"
+                      │   ├── QuestionWrap (frosted background, 1rem/1.4 text)
                       │   ├── DuckyDrip (centered, 180px, randomized SVG layers)
                       │   ├── Content (verdict, afterburn)
-                      │   ├── Divider line
-                      │   └── Footer (tagline + ducky icon + "AskDucky.app")
-                      ├── "Share this" button (primary)
-                      └── "Ask again" button (secondary)
+                      │   ├── Footer (divider + AskDucky.app + Made with ❤️ ente)
+                      │   │   └── Hidden in web view, shown only in export via data-export-mode
+                      ├── "Share the advice" button (primary)
+                      ├── "Ask Ducky again" button (secondary)
+                      └── Shake hint (shimmer, same as idle)
 ```
 
 ## Library interfaces
@@ -144,7 +144,9 @@ Each browser-dependent concern is isolated behind a small interface in `lib/`:
 handleShare()
   │
   ├── exportShareBlob()               # html-to-image → PNG blob
-  │   └── on failure → imageFallbackMode = true
+  │   ├── lockWrapperHeight() to minimize footer flash during export
+  │   ├── Set data-export-mode on share card to show footer
+  │   └── Export with cream #f7f5f0 background color
   │
   ├── sharePayload(file, text, url)
   │   ├── 1. navigator.share({ files })     → "native-file"

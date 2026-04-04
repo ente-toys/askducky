@@ -6,43 +6,38 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function ShareCard({
   result,
-  fallbackMode = false,
 }: {
   result: PlayResult;
-  fallbackMode?: boolean;
 }) {
   return (
     <div className={`${styles.card} ${styles[result.visualVariant] ?? ""}`}>
+      <p className={styles.headerTagline}>Privacy advice from a judgmental duck</p>
       <div className={styles.questionWrap}>
         <p className={styles.question}>{result.question.text}</p>
       </div>
       <div className={styles.moodWrap}>
-        <DuckyDrip config={result.dripConfig} size={140} />
+        <DuckyDrip config={result.dripConfig} size={180} />
       </div>
       <div className={styles.content}>
         <h3 className={styles.verdict}>{result.verdict.text}</h3>
-        <p className={styles.afterburn}>
-          {result.afterburn.text}
-          {fallbackMode ? " Plain fallback active." : ""}
-        </p>
+        <p className={styles.afterburn}>{result.afterburn.text}</p>
       </div>
       <div className={styles.divider} />
       <div className={styles.footer}>
-        <span className={styles.tagline}>Ducky is judging your privacy choices</span>
-        <div className={styles.footerBrand}>
+        <div className={styles.footerLeft}>
           <img
             src={`${basePath}/ducky/hero.png`}
-            width={24}
-            height={24}
+            width={25}
+            height={25}
             alt=""
             className={styles.footerDucky}
           />
-          <span className={styles.footerName}>AskDucky.app</span>
+          <span className={styles.footerTitle}>AskDucky.app</span>
         </div>
-      </div>
-      <div className={styles.footerBranding}>
-        <span className={styles.brandingMadeWith}>Made with ❤️</span>
-        <span className={styles.brandingEnte}>ente</span>
+        <div className={styles.footerRight}>
+          <span className={styles.footerMadeWith}>Made with ❤️</span>
+          <span className={styles.footerEnte}>ente</span>
+        </div>
       </div>
     </div>
   );

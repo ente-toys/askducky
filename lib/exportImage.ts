@@ -5,7 +5,7 @@ export async function exportNodeToPng(node: HTMLElement): Promise<Blob> {
     cacheBust: true,
     pixelRatio: 2,
     skipFonts: false,
-    backgroundColor: "#07110b",
+    backgroundColor: "#f7f5f0",
   });
 
   const response = await fetch(dataUrl);

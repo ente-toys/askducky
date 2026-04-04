@@ -39,25 +39,17 @@ Additional palette colors available in Figma: full grayscale, reds (`#F63A3A`), 
 - Font weight scale
 - Corner radii, card shadows, and spacing cadence
 
-## Mascot mood mapping
+## Mascot assets
 
-Ducky illustrations exported from Figma file `yRdype7tLNdFKezukasJaF`, page "Duckys" (5:3653), frame "Dukcys" (5:9306). Exported at 0.25x scale as PNG.
+Ducky illustrations originally exported from Figma file `yRdype7tLNdFKezukasJaF`, page "Duckys" (5:3653), frame "Dukcys" (5:9306).
 
-No mood-specific facial expressions exist in the Figma file. The base Ducky has a single happy/content expression. Mood variation comes from different props, accessories, and poses:
+The 8 static mood PNGs have been deleted. Visual variety now comes from Ducky Drip -- randomized layered SVG avatars (base + cap + shoes + shades + accessories) from 48 assets in `public/ducky/drip/`. Only `hero.png` remains (used in topbar).
 
-| Mood | File | Figma Node | Illustration |
-|------|------|------------|-------------|
-| (hero) | `hero.png` | `5:6184` | Base happy ducky, standalone |
-| smug | `smug.png` | `5:4249` | Trophy ducky with green cap |
-| horrified | `horrified.png` | `5:4032` | Cat-grabbing ducky with green cap |
-| side_eye | `side_eye.png` | `5:3806` | Camera ducky close-up with green cap |
-| impressed | `impressed.png` | `5:3871` | Globe ducky with green cap |
-| disappointed | `disappointed.png` | `5:3952` | Camera + coffee ducky with green cap |
-| chaotic | `chaotic.png` | `5:3654` | Three duckies with gears |
-| suspicious | `suspicious.png` | `5:4315` | Camera ducky full shot with green cap |
-| deeply_tired | `deeply_tired.png` | `5:4162` | Two duckies hugging with green caps |
+| Asset | File | Figma Node | Usage |
+|-------|------|------------|-------|
+| Hero | `hero.png` | `5:6184` | Topbar icon |
 
 ## Mascot rules
+- Visual variety comes from DuckyDrip randomized avatar configs, not static mood illustrations.
 - Replace assets by exporting from Figma at 0.25x scale, save to `public/ducky/`.
-- Preserve mood-to-asset mapping in `components/DuckyMood.tsx` rather than hardcoding asset names throughout the UI.
 - Keep result card compositions centered around the mascot rather than using it as detached clip art.

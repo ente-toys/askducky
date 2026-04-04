@@ -57,7 +57,7 @@ export const shareCaptions: ShareCaptionTemplate[] = [
   "A duck just gave me better privacy advice than most apps.",
   "Shake your phone. Receive a privacy verdict.",
   "This duck has concerns. Try Ask Ducky.",
-  "I came for vibes and left with boundaries.",
+  "I came for fun and left with boundaries.",
   "Ask Ducky before you overshare with confidence.",
   "A privacy verdict from an aggressively observant duck.",
   "This was supposed to be fun. The duck had notes.",

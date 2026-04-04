@@ -78,22 +78,13 @@ function pickAfterburn(categoryId: string, recentIds: string[]) {
   return pickRandom(filtered);
 }
 
-export function pickMultipleQuestions(count: number, history: RecentHistory): Question[] {
-  const picked: Question[] = [];
-  const usedIds: string[] = [...history.questionIds];
-
-  for (let i = 0; i < count; i++) {
-    const category = pickWeightedRandom(categories);
-    const categoryQuestions = filterRecent(
-      questions.filter((item) => item.categoryId === category.id),
-      usedIds,
-    );
-    const q = pickRandom(categoryQuestions);
-    picked.push(q);
-    usedIds.push(q.id);
+export function shuffleAllQuestions(): Question[] {
+  const shuffled = [...questions];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-
-  return picked;
+  return shuffled;
 }
 
 export function generatePlayResultForQuestion(question: Question, history: RecentHistory): PlayResult {

@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Ask Ducky is a mobile-first, share-first web toy. Users pick from 3 displayed questions (or shake for a random one) to get Ducky's privacy verdict, then share a polished result card. Built with Next.js 15 App Router, React 19, TypeScript, CSS Modules.
+Ask Ducky is a mobile-first, share-first web toy. Users pick from a scrollable list of shuffled questions (or shake for a random one) to get Ducky's privacy verdict, then share a polished result card. Built with Next.js 15 App Router, React 19, TypeScript, CSS Modules.
 
 ## Key documentation — read before making changes
 
@@ -49,14 +49,16 @@ npx tsc --noEmit     # Type check
 
 - **Warm light theme.** Cream `#f7f5f0` background, white elevated surfaces, charcoal text. Inspired by Clay and Lovable design systems. No dark mode, no animated gradients.
 - **Shadows for elevation, not borders.** Cards and interactive elements use soft two-layer shadows. Borders only for internal structural dividers (share card footer line).
-- **Share card is the result screen.** Renders outside any container wrapper. Side-by-side Share/Ask Again buttons below. No "Ask Ducky" header in the card (topbar already has it). "Made with ❤️ ente" branding at the bottom.
-- **Idle screen has no card container.** Content flows directly on cream background. Hero DuckyDrip (150px) + subtitle heading + question cards + "More questions" button.
+- **Share card is the result screen.** Renders outside any container wrapper. Side-by-side "Share the advice" / "Ask Ducky again" buttons below, plus shimmer shake hint. Share card header includes "Privacy advice from a judgmental duck" tagline. Footer (divider + AskDucky.app + Made with ❤️ ente) is hidden in web view and shown only in exported image via `data-export-mode` attribute.
+- **Idle screen has no card container.** Content flows directly on cream background. Hero DuckyDrip (180px) + subtitle heading ("Privacy advice from a judgmental duck") + shimmer shake hint with "or pick one" sub-text + scrollable question list (all 200 questions shuffled, 273px max-height).
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
 - **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
 - **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" link only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
-- **Topbar has ducky + brand link.** Left: clickable "Ask Ducky" with hero ducky (resets to home). Right: "Made with ❤️ / ente" linking to `ente.com/?utm_source=askducky`.
+- **Topbar has ducky + brand link.** Left: clickable "AskDucky.app" with hero ducky (resets to home). Right: "Made with ❤️ / ente" linking to `ente.com/?utm_source=askducky`.
+- **Shake works on both screens.** Shake triggers a new result from both idle and result screens. No dependency on current phase.
+- **Minimal feedback messages.** Short confirmations only: "Shared!", "Link copied!", etc. No verbose messages for shake enabled, image saved, or share confirmations.
 - **Haptics on every interaction.** Question tap fires `hapticForQuestionReveal`, verdict fires `hapticForVerdictReveal` (double-pulse). Share success fires `hapticForShareSuccess`. All patterns scaled ~1.55x.
 
 ## Mascot illustrations
@@ -77,7 +79,7 @@ Each category has ~20% chance of being empty per result. At least one item is al
 
 ### Static hero PNG
 
-Only `hero.png` (`5:6184`) remains — used in topbar and share card footer. The 8 mood PNGs were deleted (replaced by DuckyDrip).
+Only `hero.png` (`5:6184`) remains — used in topbar. The 8 mood PNGs were deleted (replaced by DuckyDrip).
 
 ## Color tokens
 

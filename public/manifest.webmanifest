@@ -1,7 +1,7 @@
 {
-  "name": "Ask Ducky",
-  "short_name": "Ask Ducky",
-  "description": "Shake for a privacy verdict.",
+  "name": "AskDucky",
+  "short_name": "AskDucky",
+  "description": "Privacy advice from a judgmental duck.",
   "display": "standalone",
   "background_color": "#f7f5f0",
   "theme_color": "#f7f5f0",

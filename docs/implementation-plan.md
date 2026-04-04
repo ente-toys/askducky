@@ -12,8 +12,8 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 |------|--------|-------|
 | Content engine | Done | Category-weighted selection, repeat avoidance, layered verdict lookup |
 | Content authoring | Done | 200 questions, 156 verdicts, 75 afterburns, all launch targets met |
-| 2-state UI | Done | Idle (3 question cards) → result (no intermediate question phase) |
-| Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop |
+| 2-state UI | Done | Idle (scrollable list of all 200 shuffled questions) → result (no intermediate question phase) |
+| Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop, works on both idle and result screens |
 | Haptics | Done | 3 patterns: question reveal, verdict reveal, share success |
 | Share flow | Done | 4-tier fallback chain with DOM-to-image failure handling |
 | Share card renderer | Done | Square export, 5 visual variants (warm tints on light theme) |
@@ -23,7 +23,11 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 | Mascot assets | Done | 8 mood PNGs deleted, only hero.png retained. DuckyDrip SVGs are primary |
 | Ducky Drip | Done | 48 SVG assets from ente-toys/Ducky-drip repo, randomized avatar per result |
 | Haptics | Done | Fires on question tap + verdict reveal (double-pulse), patterns scaled 1.55x |
-| Background themes | Done | Replaced with flat warm cream — no animated blobs or color rotation |
+| Background themes | Done | Flat warm cream — no animated blobs or color rotation |
+| Question list | Done | All 200 questions shown in scrollable shuffled list (273px max-height), replaces 3-card picker + "More questions" |
+| Shake on result | Done | Shake works on both idle and result screens, goes directly to new result |
+| Share card export | Done | Footer hidden in web view, shown in export via data-export-mode; lockWrapperHeight minimizes flash; cream background |
+| Copy polish | Done | Shortened feedback messages, topbar "AskDucky.app", share title "AskDucky", manifest updated |
 | Font loading | Done | Inter via next/font/google |
 | State animations | Done | Phase transitions, orb float, verdict pop, card reveal |
 | Figma MCP | Done | Authenticated as setal@ente.io, design system and Ducky assets explored |
@@ -66,11 +70,11 @@ The "Enable shake" button was showing on all platforms. Fixed by calling `reques
 
 ### UX redesign: 2-state flow with question cards
 The original 3-state flow (idle → question → result) added an unnecessary intermediate step. Redesigned to 2 states:
-- **Idle**: Shows 3 randomly selected question cards. User taps one to go directly to result, or shakes for a random question → result. "More questions" refreshes the 3 cards.
-- **Result**: Share card renders outside the main card container (no double bounding box). "Save image" and "Copy link" buttons removed — just "Share this" + "Ask again".
+- **Idle**: Shows all 200 questions in a scrollable shuffled list (273px max-height). User taps one to go directly to result, or shakes for a random question → result.
+- **Result**: Share card renders outside the main card container (no double bounding box). "Share the advice" + "Ask Ducky again" buttons side-by-side. Shake hint with shimmer below buttons. Shake works here too — goes directly to new result.
 
 ### Topbar redesign
-Replaced the plain "Ask Ducky" badge with: left side = clickable ducky icon + "Ask Ducky" text (resets to home); right side = "Made with 💚" (small) + "ente" (large, green) linking to `ente.com/?utm_source=askducky`.
+Replaced the plain "Ask Ducky" badge with: left side = clickable ducky icon + "AskDucky.app" text (resets to home); right side = "Made with ❤️" (small) + "ente" (large) linking to `ente.com/?utm_source=askducky`.
 
 ### Share card restructured
 - Removed 1:1 aspect ratio, replaced with `max-height: calc(100svh - 260px)` for viewport fit

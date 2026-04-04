@@ -5,7 +5,7 @@ import styles from "./AskDuckyShell.module.css";
 import { ShareCard } from "@/components/ShareCard";
 import { DuckyDrip } from "@/components/DuckyDrip";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { generatePlayResult, generatePlayResultForQuestion, pickMultipleQuestions } from "@/lib/contentEngine";
+import { generatePlayResult, generatePlayResultForQuestion, shuffleAllQuestions } from "@/lib/contentEngine";
 import { randomDripConfig } from "@/lib/duckyDrip";
 import { downloadBlob, exportNodeToPng } from "@/lib/exportImage";
 import {
@@ -28,7 +28,6 @@ export function AskDuckyShell() {
   const [result, setResult] = useState<PlayResult | null>(null);
   const [motionPermission, setMotionPermission] = useState<MotionState>("unknown");
   const [feedback, setFeedback] = useState("");
-  const [imageFallbackMode, setImageFallbackMode] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [displayedQuestions, setDisplayedQuestions] = useState<Question[]>([]);
   const [heroDripConfig, setHeroDripConfig] = useState<DripConfig | null>(null);
@@ -44,7 +43,7 @@ export function AskDuckyShell() {
       setResult(historyRef.current.lastResult);
     }
 
-    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
+    setDisplayedQuestions(shuffleAllQuestions());
     setHeroDripConfig(randomDripConfig());
 
     if (saved !== "granted") {
@@ -61,9 +60,7 @@ export function AskDuckyShell() {
   useEffect(() => {
     const controller = createShakeController({
       onShake: () => {
-        if (phase === "idle") {
-          goToResult(generatePlayResult(historyRef.current));
-        }
+        goToResult(generatePlayResult(historyRef.current));
       },
     });
 
@@ -72,7 +69,7 @@ export function AskDuckyShell() {
     }
 
     return () => controller.stop();
-  }, [phase, motionPermission]);
+  }, [motionPermission]);
 
   function goToResult(playResult: PlayResult) {
     resultRef.current = playResult;
@@ -98,16 +95,10 @@ export function AskDuckyShell() {
     goToResult(generatePlayResultForQuestion(question, historyRef.current));
   }
 
-  function refreshQuestions() {
-    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
-    setHeroDripConfig(randomDripConfig());
-  }
-
   function resetPlay() {
     setPhase("idle");
     setFeedback("");
-    setImageFallbackMode(false);
-    setDisplayedQuestions(pickMultipleQuestions(3, historyRef.current));
+    setDisplayedQuestions(shuffleAllQuestions());
     setHeroDripConfig(randomDripConfig());
   }
 
@@ -119,13 +110,34 @@ export function AskDuckyShell() {
     historyRef.current = { ...historyRef.current, motionPermission: normalized };
     saveHistory(historyRef.current);
     setMotionPermission(normalized);
-    setFeedback(
-      normalized === "granted"
-        ? "Shake is on."
-        : normalized === "unsupported"
-          ? "Motion not supported here. Buttons still work."
-          : "Motion denied. Buttons still work.",
-    );
+    if (normalized !== "granted") {
+      setFeedback(
+        normalized === "unsupported"
+          ? "Shake isn't available here — just tap instead."
+          : "Shake denied — just tap instead.",
+      );
+    }
+  }
+
+  function lockWrapperHeight(node: HTMLElement): Promise<() => void> {
+    return new Promise((resolve) => {
+      const wrapper = node.parentElement;
+      if (!wrapper) { resolve(() => {}); return; }
+      const height = wrapper.offsetHeight;
+      wrapper.style.height = `${height}px`;
+      wrapper.style.overflow = "hidden";
+      // Wait for the clip to paint before revealing the footer
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          node.setAttribute("data-export-mode", "");
+          resolve(() => {
+            node.removeAttribute("data-export-mode");
+            wrapper.style.height = "";
+            wrapper.style.overflow = "";
+          });
+        });
+      });
+    });
   }
 
   async function exportShareBlob() {
@@ -134,11 +146,13 @@ export function AskDuckyShell() {
       throw new Error("Share card node unavailable.");
     }
 
+    const unlock = await lockWrapperHeight(node);
     try {
-      setImageFallbackMode(false);
-      return await exportNodeToPng(node);
+      const blob = await exportNodeToPng(node);
+      unlock();
+      return blob;
     } catch {
-      setImageFallbackMode(true);
+      unlock();
       throw new Error("Primary image export failed.");
     }
   }
@@ -148,13 +162,15 @@ export function AskDuckyShell() {
       return;
     }
 
+    const unlock = await lockWrapperHeight(cardRef.current);
     try {
       const blob = await exportNodeToPng(cardRef.current);
+      unlock();
       await downloadBlob(blob, `ask-ducky-${resultRef.current.question.id}.png`);
-      setFeedback("Image downloaded. Caption copied if supported.");
+      setFeedback("");
       return;
     } catch {
-      setImageFallbackMode(true);
+      unlock();
       const plainText = [
         resultRef.current.question.text,
         resultRef.current.verdict.text,
@@ -163,7 +179,7 @@ export function AskDuckyShell() {
       ].join("\n");
       const fallbackBlob = new Blob([plainText], { type: "text/plain" });
       await downloadBlob(fallbackBlob, `ask-ducky-${resultRef.current.question.id}.txt`);
-      setFeedback("Image export failed. Downloaded a plain fallback card instead.");
+      setFeedback("Couldn't save the image. Downloaded a text version instead.");
     }
   }
 
@@ -180,12 +196,12 @@ export function AskDuckyShell() {
       const blob = await exportShareBlob();
       file = new File([blob], `ask-ducky-${resultRef.current.question.id}.png`, { type: "image/png" });
     } catch {
-      setFeedback("Image export failed. Falling back to a plain share path.");
+      setFeedback("");
     }
 
     const outcome = await sharePayload(
       {
-        title: "Ask Ducky",
+        title: "AskDucky",
         text: resultRef.current.caption.text,
         url: "https://askducky.app",
         file,
@@ -198,11 +214,11 @@ export function AskDuckyShell() {
     }
 
     const messages: Record<typeof outcome.method, string> = {
-      "native-file": "Shared with image.",
-      "native-text": "Shared with link and caption.",
-      "download-copy-caption": "Downloaded the card and copied a caption if supported.",
-      "copy-link": "Copied the app link.",
-      none: "Share was unavailable here.",
+      "native-file": "",
+      "native-text": "",
+      "download-copy-caption": "Saved! Caption copied.",
+      "copy-link": "Link copied!",
+      none: "Sharing isn't available here.",
     };
 
     setFeedback(messages[outcome.method]);
@@ -224,7 +240,7 @@ export function AskDuckyShell() {
               alt=""
               className={styles.topbarDucky}
             />
-            <span className={styles.topbarTitle}>Ask Ducky</span>
+            <span className={styles.topbarTitle}>AskDucky.app</span>
           </button>
           <a
             href="https://ente.com/?utm_source=askducky"
@@ -242,10 +258,10 @@ export function AskDuckyShell() {
             <div className={`${styles.hero} ${styles.phaseEnter}`}>
               {heroDripConfig ? (
                 <div className={styles.heroMascot}>
-                  <DuckyDrip config={heroDripConfig} size={150} />
+                  <DuckyDrip config={heroDripConfig} size={180} />
                 </div>
               ) : null}
-              <h2 className={styles.title}>A judgmental duck for your digital life</h2>
+              <h2 className={styles.title}>Privacy advice from a judgmental duck</h2>
             </div>
             <div className={`${styles.questionList} ${styles.phaseEnter}`}>
               <div className={styles.shakeHintWrap}>
@@ -259,20 +275,20 @@ export function AskDuckyShell() {
                     Enable shake
                   </button>
                 ) : null}
+                <span className={styles.shakeHintSub}>or pick one</span>
               </div>
-              {displayedQuestions.map((q) => (
-                <button
-                  key={q.id}
-                  type="button"
-                  className={styles.questionItem}
-                  onClick={() => selectQuestion(q)}
-                >
-                  {q.text}
-                </button>
-              ))}
-              <button type="button" className={styles.primary} onClick={refreshQuestions}>
-                More questions
-              </button>
+              <div className={styles.questionScroll}>
+                {displayedQuestions.map((q) => (
+                  <button
+                    key={q.id}
+                    type="button"
+                    className={styles.questionItem}
+                    onClick={() => selectQuestion(q)}
+                  >
+                    {q.text}
+                  </button>
+                ))}
+              </div>
             </div>
             {feedback ? <div className={styles.feedback}>{feedback}</div> : null}
           </div>
@@ -282,17 +298,29 @@ export function AskDuckyShell() {
           <>
             <div className={`${styles.resultCardWrap} ${styles.cardEnter}`}>
               <div ref={cardRef}>
-                <ShareCard result={result} fallbackMode={imageFallbackMode} />
+                <ShareCard result={result} />
               </div>
             </div>
             <div className={`${styles.resultControls} ${styles.controlsEnter}`}>
               <button type="button" className={styles.primary} onClick={() => void handleShare()} disabled={isSharing}>
-                {isSharing ? "Sharing..." : "Share this"}
+                {isSharing ? "Sharing..." : "Share the advice"}
               </button>
               <button type="button" className={styles.secondary} onClick={resetPlay}>
-                Ask again
+                Ask Ducky again
               </button>
               {feedback ? <div className={styles.feedback}>{feedback}</div> : null}
+              <div className={styles.resultShakeHint}>
+                <span className={styles.shakeHint}>Shake to ask a random question</span>
+                {showEnableShake ? (
+                  <button
+                    type="button"
+                    className={styles.enableShakeLink}
+                    onClick={() => void handleMotionRequest()}
+                  >
+                    Enable shake
+                  </button>
+                ) : null}
+              </div>
             </div>
           </>
         ) : null}
