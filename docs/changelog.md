@@ -201,3 +201,64 @@ Added randomized Ducky Drip characters, vibrant background themes, haptic feedba
 **Problem:** `public/icon.svg` was a generic icon. After switching to the Ducky Drip base SVG, the original 713×937 viewBox had too much empty space — the ducky was tiny at favicon sizes.
 **Fix:** Moved icon to `app/icon.svg` (Next.js App Router convention). Cropped viewBox to `75 240 580 560` to tightly frame the ducky for clear visibility at 16-32px.
 **Files:** `app/icon.svg`
+
+## Round 6: Design overhaul — warm light theme
+
+Major visual redesign to replace the dark "vibe-coded" aesthetic with a warm, intentional light theme inspired by Clay and Lovable design systems. Principles: content-first warmth, borders/shadows over gradients, editorial restraint, Ducky as the visual star.
+
+### Fixed
+
+#### 35. Dead code cleanup (Significant)
+**Problem:** Three unused components (`OrbHero.tsx`, `DuckyMood.tsx`, `MotionPermissionGate.tsx`) and 8 unused mood PNGs (~500KB) remained in the codebase after being replaced by DuckyDrip.
+**Fix:** Deleted all three components and 8 mood PNGs. Removed the `DuckyMood` type, `moodsByFamily` mapping, `duckyMoods` array, and `mood` field from `PlayResult`. Only `hero.png` retained (used in topbar and share card footer).
+**Files:** `components/OrbHero.tsx` (deleted), `components/DuckyMood.tsx` (deleted), `components/MotionPermissionGate.tsx` (deleted), `public/ducky/*.png` (8 deleted), `lib/types.ts`, `lib/contentEngine.ts`, `app/data/content.ts`
+
+#### 36. Dark theme replaced with warm light theme (Major)
+**Problem:** The dark theme (#07110b background, animated gradient blobs, glass-morphism surfaces) was the primary contributor to the "vibe-coded" feel. 4-blob animated backgrounds × 7 color themes × 40s drift animation created visual noise.
+**Fix:** Complete palette swap to warm cream light theme. Background `#f7f5f0` (warm cream), elevated surfaces `#ffffff` (white), text `#1c1c1c` (charcoal), muted `#6b6966` (warm gray). Removed all blob variables, `bgDrift` animation, `bgThemes` array, and `applyBgTheme()` function. Added `--action: #e8614d` (warm coral) for primary buttons, `--surface: #f0ede6` for question card backgrounds. Updated `color-scheme` to `light`, theme colors in layout.tsx and manifest.webmanifest.
+**Files:** `app/globals.css`, `app/layout.tsx`, `public/manifest.webmanifest`, `app/data/brandTokens.ts`, `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 37. Shadows for elevation instead of borders (Significant)
+**Problem:** Borders (`1px solid var(--line)`) on cards and UI elements created a stroked look that felt flat and generic. Question cards were white-on-white with no visible separation.
+**Fix:** Replaced borders with soft two-layer shadows on cards (`0 1px 3px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04)`), question items (`0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03)`), and secondary buttons. Question cards use cream surface background (`#f0ede6`) on white card for tonal contrast. Primary button uses Lovable-style inset shadow for tactile depth.
+**Files:** `components/AskDuckyShell.module.css`, `components/ShareCard.module.css`
+
+#### 38. Idle screen card container removed (Significant)
+**Problem:** The idle screen wrapped all content in a white card container, creating a card-in-card nesting (cream → white card → white question cards) with three nearly identical layers.
+**Fix:** Removed the outer `<section className={styles.card}>` wrapper. Idle content now flows directly on the cream background. Question cards with cream surface backgrounds stand out clearly against the page.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 39. Hero DuckyDrip added to idle screen (Significant)
+**Problem:** The idle/home screen was text-heavy with no visual anchor — just title, subtitle, shake hint, and question cards.
+**Fix:** Added a randomized DuckyDrip (150px) to the hero section with gentle float animation. Randomizes on mount and refreshes with "More questions" and "Ask again". Deferred to `useEffect` to avoid SSR hydration mismatch from `Math.random()`.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 40. Redundant h1 title removed (Minor)
+**Problem:** "Ask Ducky" appeared as both the topbar title and a giant h1 in the hero section, wasting prime screen real estate.
+**Fix:** Removed the h1. Promoted the subtitle "A judgmental duck for your digital life" to an h2 at heading size. Hero section is now: DuckyDrip → subtitle heading, centered.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 41. Result screen buttons side-by-side (Minor)
+**Problem:** "Share this" and "Ask again" buttons stacked vertically, consuming ~100px of vertical space and contributing to iOS clipping.
+**Fix:** Changed `.resultControls` to `grid-template-columns: 1fr 1fr` for side-by-side layout. Feedback text spans both columns via `grid-column: 1 / -1`.
+**Files:** `components/AskDuckyShell.module.css`
+
+#### 42. Share card visual variants simplified (Minor)
+**Problem:** 18 visual variants with near-identical dark gradient backgrounds were barely distinguishable.
+**Fix:** Reduced to 5 distinct variants (alert-halo, scan-lines, vault-beam, soft-cloud, film-glow) with warm-tinted backgrounds visible on the light theme. Updated `visualVariantsByCategory` mapping to distribute these across 10 categories.
+**Files:** `components/ShareCard.module.css`, `app/data/content.ts`
+
+#### 43. Consistent question card styling across screens (Minor)
+**Problem:** Question cards on the home screen and the question wrap in the share card used different backgrounds, borders, radii, and shadow treatments.
+**Fix:** Both now use cream surface background (`--surface`), `border-radius: var(--radius-lg)`, no border, and matching soft shadow (`0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03)`).
+**Files:** `components/AskDuckyShell.module.css`, `components/ShareCard.module.css`
+
+#### 44. Share card "Made with ❤️ ente" branding added (Minor)
+**Problem:** The share card had no Ente branding beyond the AskDucky.app footer. When shared, there was no attribution to the parent brand.
+**Fix:** Added a centered "Made with ❤️" / "ente" branding row below the existing footer, at ~75% of the topbar branding size.
+**Files:** `components/ShareCard.tsx`, `components/ShareCard.module.css`
+
+#### 45. Topbar branding simplified (Minor)
+**Problem:** The "ente" text in the topbar used green accent color, and the heart emoji was green. Multiple accent colors made the UI feel busy.
+**Fix:** Changed "ente" to charcoal (`var(--text)`) and heart emoji to red ❤️. Reduces color palette to: cream, white, charcoal, muted gray, coral (action), and Ente green (accent only).
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`

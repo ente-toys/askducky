@@ -16,14 +16,14 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 | Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop |
 | Haptics | Done | 3 patterns: question reveal, verdict reveal, share success |
 | Share flow | Done | 4-tier fallback chain with DOM-to-image failure handling |
-| Share card renderer | Done | Square export, 20 category/mood visual variants |
+| Share card renderer | Done | Square export, 5 visual variants (warm tints on light theme) |
 | Offline support | Done | Service worker + bundled content (basePath-aware) |
 | Local persistence | Done | Recent history, motion permission, last result re-share |
-| Design tokens | Done | Accent green `#08C225` confirmed from Figma design system |
-| Mascot assets | Done | 9 Ducky PNGs exported from Figma (hero + 8 moods), replaced by Ducky Drip SVGs |
+| Design tokens | Done | Warm light theme: cream `#f7f5f0`, charcoal `#1c1c1c`, coral `#e8614d` action |
+| Mascot assets | Done | 8 mood PNGs deleted, only hero.png retained. DuckyDrip SVGs are primary |
 | Ducky Drip | Done | 48 SVG assets from ente-toys/Ducky-drip repo, randomized avatar per result |
 | Haptics | Done | Fires on question tap + verdict reveal (double-pulse), patterns scaled 1.55x |
-| Background themes | Done | 7 randomized color themes with animated drift, rotates on each play |
+| Background themes | Done | Replaced with flat warm cream — no animated blobs or color rotation |
 | Font loading | Done | Inter via next/font/google |
 | State animations | Done | Phase transitions, orb float, verdict pop, card reveal |
 | Figma MCP | Done | Authenticated as setal@ente.io, design system and Ducky assets explored |

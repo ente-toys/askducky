@@ -166,28 +166,32 @@ handleShare()
   - Pre-cached assets (`/`, manifest, icon): **network-first**, cache fallback for offline
   - Same-origin JS/CSS chunks: fetch-then-cache with offline fallback
   - External requests: network only
-- **PWA manifest:** Standalone display, dark theme, Ente green accent
+- **PWA manifest:** Standalone display, warm cream theme
 
 ## CSS architecture
 
-- **Global tokens:** `app/globals.css` — CSS custom properties for all colors, fonts, spacing, radii, shadows
+- **Global tokens:** `app/globals.css` — CSS custom properties for all colors, fonts, spacing, radii
 - **Component styles:** CSS Modules (`.module.css`) scoped to each component
 - **Font loading:** Inter loaded via `next/font/google`, injected as `--font-inter` CSS variable
 - **Reduced motion:** Global `prefers-reduced-motion` media query disables all animations
-- **Share card variants:** 20 category-specific CSS classes with unique gradient/texture backgrounds
-- **Shimmer animation:** Green/gold gradient sweep on the shake hint text
-- **Viewport fit:** Both screens use `max-height` with `svh` units to prevent page scrolling
-- **Randomized backgrounds:** 7 color themes (emerald, aurora, sunset, ocean, neon, golden, cosmic) applied via CSS custom properties (`--blob-1` through `--blob-4`). Randomized on mount and on each "Ask again". Slow 40s `bgDrift` animation for ambient motion.
+- **Share card variants:** 5 warm-tinted CSS classes (alert-halo, scan-lines, vault-beam, soft-cloud, film-glow)
+- **Elevation model:** Soft two-layer shadows instead of borders — inspired by Clay/Lovable design systems
+- **Viewport fit:** Idle screen flows on cream (no card container). Result screen uses side-by-side buttons
+- **Background:** Flat warm cream `#f7f5f0` — no animated gradients or blobs
 
-## Design tokens (current placeholders)
+## Design tokens
 
 | Token | Value | Source |
 |-------|-------|--------|
-| `--bg` | `#07110b` | Ente-adjacent dark green |
+| `--bg` | `#f7f5f0` | Warm cream (Clay/Lovable-inspired) |
+| `--bg-elevated` | `#ffffff` | White cards on cream |
+| `--surface` | `#f0ede6` | Slightly darker cream for question cards |
+| `--text` | `#1c1c1c` | Charcoal (Lovable) |
+| `--muted` | `#6b6966` | Warm gray |
 | `--accent` | `#08C225` | Ente primary green (confirmed from Figma) |
-| `--warning` | `#ffca72` | Ducky amber |
-| `--text` | `#f4fff5` | Near-white |
-| `--muted` | `#a9c8b2` | Desaturated green |
+| `--action` | `#e8614d` | Warm coral for primary buttons |
+| `--line` | `#e5e2db` | Warm border for structural dividers |
+| `--warning` | `#d08a11` | Deep amber |
 | `--font-display` | Inter (via next/font) | Placeholder — pending media kit |
 | `--font-body` | Inter (via next/font) | Placeholder — pending media kit |
 

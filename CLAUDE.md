@@ -33,7 +33,7 @@ npx tsc --noEmit     # Type check
 ## Architecture summary
 
 - **Single client component** (`AskDuckyShell.tsx`) manages a 2-phase state machine: idle → result (question phase was removed — tapping or shaking goes directly to result)
-- **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, correlated moods, visual variants, and randomized Ducky Drip configs
+- **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, visual variants, and randomized Ducky Drip configs
 - **All content is bundled** — no backend, no API calls. Fully playable offline after first load
 - **Browser APIs** (shake, haptics, share, export) are each isolated behind small library interfaces in `lib/`
 - **Ducky Drip** (`lib/duckyDrip.ts`, `components/DuckyDrip.tsx`) renders randomized ducky avatars from layered SVGs (48 assets in `public/ducky/drip/`)
@@ -41,21 +41,22 @@ npx tsc --noEmit     # Type check
 ## Content engine rules
 
 - Verdicts and afterburns are tagged with `categoryIds`. The engine prefers category-matched content (70%) and falls back to global pools (30%)
-- Mood correlates with verdict family — do not pick moods randomly
+- Mood type and mood-verdict correlation were removed (DuckyDrip provides visual variety instead)
 - Repeat avoidance uses a 10-item history window for both questions and verdicts
 - Severity is inferred from question text keywords — this drives verdict family resolution
 
 ## Design decisions to preserve
 
-- **Share card is the result screen.** The card renders outside the main card container (no double bounding box). Buttons sit below it. No "Ask Ducky" header in the card (topbar already has it).
+- **Warm light theme.** Cream `#f7f5f0` background, white elevated surfaces, charcoal text. Inspired by Clay and Lovable design systems. No dark mode, no animated gradients.
+- **Shadows for elevation, not borders.** Cards and interactive elements use soft two-layer shadows. Borders only for internal structural dividers (share card footer line).
+- **Share card is the result screen.** Renders outside any container wrapper. Side-by-side Share/Ask Again buttons below. No "Ask Ducky" header in the card (topbar already has it). "Made with ❤️ ente" branding at the bottom.
+- **Idle screen has no card container.** Content flows directly on cream background. Hero DuckyDrip (150px) + subtitle heading + question cards + "More questions" button.
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
 - **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
 - **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" link only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
-- **No-scroll viewport fit.** Both home and result screens are constrained to fit within the viewport without page scrolling. Home card uses `max-height: calc(100svh - 120px)` with internal scroll; result card uses `max-height: calc(100svh - 260px)`.
-- **Topbar has ducky + brand link.** Left: clickable "Ask Ducky" with hero ducky (resets to home). Right: "Made with 💚 / ente" linking to `ente.com/?utm_source=askducky`.
-- **Randomized backgrounds.** 7 color themes applied via CSS custom properties on `<html>`. Rotates on mount and on each "Ask again". Flat dark base (no vertical gradient) ensures even blob visibility.
+- **Topbar has ducky + brand link.** Left: clickable "Ask Ducky" with hero ducky (resets to home). Right: "Made with ❤️ / ente" linking to `ente.com/?utm_source=askducky`.
 - **Haptics on every interaction.** Question tap fires `hapticForQuestionReveal`, verdict fires `hapticForVerdictReveal` (double-pulse). Share success fires `hapticForShareSuccess`. All patterns scaled ~1.55x.
 
 ## Mascot illustrations
@@ -74,18 +75,26 @@ Randomized ducky avatars composed from layered SVGs in `public/ducky/drip/`. Ass
 
 Each category has ~20% chance of being empty per result. At least one item is always selected. Layer order (bottom to top): base → shoes → accessories → shades → cap.
 
-### Static mood PNGs (legacy — kept for fallback)
+### Static hero PNG
 
-| File | Figma node |
-|------|------------|
-| `hero.png` | `5:6184` (used in topbar + share card footer) |
-| `smug.png`, `horrified.png`, `side_eye.png`, `impressed.png`, `disappointed.png`, `chaotic.png`, `suspicious.png`, `deeply_tired.png` | Various |
+Only `hero.png` (`5:6184`) remains — used in topbar and share card footer. The 8 mood PNGs were deleted (replaced by DuckyDrip).
 
-All exported at 0.25x from Figma (~300px height).
+## Color tokens
 
-## Color tokens (from Figma)
+Warm light theme inspired by Clay and Lovable design systems:
 
-Primary accent green is `#08C225` (confirmed from Figma design system, not the previously assumed `#00BC45`). Full Ente green scale: `#E7F6E9` (light), `#BAECC2` (stroke), `#08C225` (primary), `#069D1E` (dark), `#057C18` (darker).
+| Token | Value | Role |
+|-------|-------|------|
+| `--bg` | `#f7f5f0` | Warm cream page background |
+| `--bg-elevated` | `#ffffff` | White elevated surfaces (share card) |
+| `--surface` | `#f0ede6` | Slightly darker cream (question cards) |
+| `--text` | `#1c1c1c` | Charcoal text |
+| `--muted` | `#6b6966` | Warm gray secondary text |
+| `--accent` | `#08C225` | Ente primary green |
+| `--action` | `#e8614d` | Warm coral primary buttons |
+| `--line` | `#e5e2db` | Warm border for dividers |
+
+Ente green scale from Figma: `#E7F6E9` (light), `#BAECC2` (stroke), `#08C225` (primary), `#069D1E` (dark), `#057C18` (darker).
 
 ## Testing
 
