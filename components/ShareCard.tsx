@@ -17,7 +17,7 @@ export function ShareCard({
         <p className={styles.question}>{result.question.text}</p>
       </div>
       <div className={styles.moodWrap}>
-        <DuckyDrip config={result.dripConfig} size={180} />
+        <DuckyDrip config={result.dripConfig} size={140} />
       </div>
       <div className={styles.content}>
         <h3 className={styles.verdict}>{result.verdict.text}</h3>
@@ -39,6 +39,10 @@ export function ShareCard({
           />
           <span className={styles.footerName}>AskDucky.app</span>
         </div>
+      </div>
+      <div className={styles.footerBranding}>
+        <span className={styles.brandingMadeWith}>Made with ❤️</span>
+        <span className={styles.brandingEnte}>ente</span>
       </div>
     </div>
   );

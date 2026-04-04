@@ -9,15 +9,7 @@ import {
 } from "@/app/data/content";
 import { randomDripConfig } from "@/lib/duckyDrip";
 import { pickRandom, pickWeightedRandom } from "@/lib/randomize";
-import type { DuckyMood, PlayResult, Question, RecentHistory, VerdictFamily, VerdictLine } from "@/lib/types";
-
-const moodsByFamily: Record<VerdictFamily, DuckyMood[]> = {
-  hard_no: ["horrified", "disappointed", "suspicious"],
-  cautious_maybe: ["suspicious", "side_eye", "deeply_tired"],
-  approved: ["impressed", "smug"],
-  chaos: ["chaotic", "horrified", "side_eye"],
-  soft_roast: ["side_eye", "smug", "deeply_tired"],
-};
+import type { PlayResult, Question, RecentHistory, VerdictFamily, VerdictLine } from "@/lib/types";
 
 function filterRecent<T extends { id: string }>(items: T[], recentIds: string[]): T[] {
   const filtered = items.filter((item) => !recentIds.includes(item.id));
@@ -109,12 +101,10 @@ export function generatePlayResultForQuestion(question: Question, history: Recen
   const footer = pickRandom(shareFooters);
   const afterburn = pickAfterburn(question.categoryId, []);
   const caption = pickRandom(shareCaptions);
-  const mood = pickRandom(moodsByFamily[verdict.family]);
   const visualVariant = pickRandom(visualVariantsByCategory[question.categoryId]);
-
   const dripConfig = randomDripConfig();
 
-  return { question, verdict, afterburn, footer, caption, mood, visualVariant, dripConfig };
+  return { question, verdict, afterburn, footer, caption, visualVariant, dripConfig };
 }
 
 export function generatePlayResult(history: RecentHistory): PlayResult {

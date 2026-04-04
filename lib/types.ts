@@ -7,16 +7,6 @@ export type VerdictFamily =
 
 export type QuestionSeverity = "high" | "medium" | "low";
 
-export type DuckyMood =
-  | "smug"
-  | "horrified"
-  | "side_eye"
-  | "impressed"
-  | "disappointed"
-  | "chaotic"
-  | "suspicious"
-  | "deeply_tired";
-
 export type CategoryId =
   | "permissions"
   | "ai_apps"
@@ -98,7 +88,6 @@ export interface PlayResult {
   question: Question;
   verdict: VerdictLine;
   afterburn: AfterburnLine;
-  mood: DuckyMood;
   footer: ShareFooter;
   caption: ShareCaptionTemplate;
   visualVariant: string;

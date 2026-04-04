@@ -16,13 +16,13 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Ask Ducky",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08C225",
-  colorScheme: "dark",
+  themeColor: "#f7f5f0",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };

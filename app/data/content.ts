@@ -2,7 +2,6 @@ import type {
   AfterburnLine,
   Category,
   CategoryId,
-  DuckyMood,
   Question,
   ShareCaptionTemplate,
   ShareFooter,
@@ -34,17 +33,6 @@ export const categories: Category[] = [
   { id: "signups_phone", name: categoryNames.signups_phone, weight: 10 },
   { id: "public_wifi_travel", name: categoryNames.public_wifi_travel, weight: 9 },
   { id: "links_backups", name: categoryNames.links_backups, weight: 11 },
-];
-
-export const duckyMoods: DuckyMood[] = [
-  "smug",
-  "horrified",
-  "side_eye",
-  "impressed",
-  "disappointed",
-  "chaotic",
-  "suspicious",
-  "deeply_tired",
 ];
 
 export const shareFooters: ShareFooter[] = [
@@ -719,14 +707,14 @@ function buildQuestions(): Question[] {
 export const questions = buildQuestions();
 
 export const visualVariantsByCategory: Record<CategoryId, string[]> = {
-  permissions: ["grid-glow", "alert-halo"],
-  ai_apps: ["scan-lines", "mirror-green"],
+  permissions: ["alert-halo", "scan-lines"],
+  ai_apps: ["scan-lines", "vault-beam"],
   cloud_storage: ["vault-beam", "soft-cloud"],
-  photo_sharing: ["film-glow", "private-link"],
-  family_groups: ["group-thread", "warm-static"],
-  messaging: ["thread-signal", "bubble-shadow"],
-  passwords_passkeys: ["vault-lock", "clean-keys"],
-  signups_phone: ["form-friction", "receipt-glow"],
-  public_wifi_travel: ["terminal-lounge", "map-noise"],
-  links_backups: ["archive-stack", "restore-path"],
+  photo_sharing: ["film-glow", "soft-cloud"],
+  family_groups: ["soft-cloud", "film-glow"],
+  messaging: ["alert-halo", "soft-cloud"],
+  passwords_passkeys: ["vault-beam", "alert-halo"],
+  signups_phone: ["scan-lines", "film-glow"],
+  public_wifi_travel: ["vault-beam", "scan-lines"],
+  links_backups: ["alert-halo", "film-glow"],
 };
