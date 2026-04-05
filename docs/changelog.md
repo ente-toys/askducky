@@ -385,3 +385,39 @@ Made each share card visually unique by combining 6 CSS texture patterns with a 
 **Problem:** Users with cached `lastResult` from previous deploys had `visualVariant` (string) and `afterburn` (object with `.text`) but no `texture`, `accentColor`, or string `afterburn`. Loading old results would render broken cards.
 **Fix:** Added migration checks in `AskDuckyShell.tsx` mount effect: if `afterburn` is an object, extract `.text`; if `texture` is missing, default to `"grain"` + Ente green accent.
 **Files:** `components/AskDuckyShell.tsx`
+
+## Round 10: Personality pass — verdicts and afterburns rewrite
+
+Comprehensive quality audit and rewrite of ~350 flat content lines across all 10 categories. Every verdict and afterburn now has the duck's personality: snarky, question-specific, funny, and judgmental.
+
+### Fixed
+
+#### 67. ~250 afterburns lacked personality (Major)
+**Problem:** ~42% of afterburns read like safety manuals, tech blogs, product recommendations, or instructions. Examples: "Use a VPN", "A password manager makes unique passwords completely effortless", "Read receipts tell people when and if you read their messages." The duck's voice disappeared entirely in the passwords, public_wifi_travel, and messaging categories.
+**Fix:** Rewrote all flat afterburns to be reactions, observations, or punchlines specific to the question asked. Every afterburn now adds a second comedic beat rather than restating the verdict or giving instructions.
+**Files:** `app/data/content.ts`
+
+#### 68. ~100 verdicts were generic or flat (Significant)
+**Problem:** ~17% of verdicts could apply to any question ("You saw that and still considered it. Remarkable."), read like FAQ answers ("Yes, but it is the weakest form of 2FA. Use an authenticator app when you can."), or gave identical advice across all three verdict slots ("A family member wants my password" had 3 verdicts all saying "use a password manager's sharing feature").
+**Fix:** Rewrote all generic verdicts to reference the specific absurdity of the question. Each question's 3 verdicts now offer genuinely different angles.
+**Files:** `app/data/content.ts`
+
+#### 69. Verbatim duplicate lines across questions (Minor)
+**Problem:** 6 lines appeared identically in multiple questions: "chaos in a trench coat", "ad-tech executive sat up straighter", "Not every product deserves the whole you", "links travel farther than your intentions", "Only send what you would be okay with existing forever", and "You are live-broadcasting that your house is empty."
+**Fix:** All duplicates rewritten with unique phrasing per question.
+**Files:** `app/data/content.ts`
+
+#### 70. Near-duplicate lines across questions (Minor)
+**Problem:** 6 pairs of near-verbatim lines differed by 1-2 words (e.g., "The timer creates urgency. Urgency creates screenshots. You see the problem/loop.").
+**Fix:** Each instance rewritten to be unique.
+**Files:** `app/data/content.ts`
+
+#### 71. passwords_passkeys category almost entirely flat (Major)
+**Problem:** Worst category: 66/120 lines flat. Nearly every afterburn was a password manager advertisement. "Do passkeys work across all my devices?" had 6/6 flat lines — all tech compatibility FAQ answers with zero duck personality.
+**Fix:** Complete rewrite of all flat lines. Afterburns now reference specific absurdities ("You memorized the lyrics to dozens of songs but drew the line at a second password").
+**Files:** `app/data/content.ts`
+
+#### 72. public_wifi_travel was extremely repetitive (Major)
+**Problem:** "Use a VPN" / "use mobile data" appeared in nearly every question. Airport Wi-Fi, bank on Wi-Fi, hotel Wi-Fi, and documents on Wi-Fi all gave identical advice. "Is roaming stress a valid excuse?" got motivational poster responses.
+**Fix:** Each question now has distinct, situation-specific verdicts and afterburns. VPN/data advice replaced with duck-voice reactions ("Your latte cost four dollars. The Wi-Fi could cost you a lot more.").
+**Files:** `app/data/content.ts`

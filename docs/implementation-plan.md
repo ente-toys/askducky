@@ -11,7 +11,7 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 | Area | Status | Notes |
 |------|--------|-------|
 | Content engine | Done | Per-question verdicts (3 each) and afterburns (3 each), 9 combos per question, repeat avoidance |
-| Content authoring | Done | 200 questions, 600 verdicts (3 per question), 600 afterburns (3 per question) |
+| Content authoring | Done | 200 questions, 600 verdicts (3 per question), 600 afterburns (3 per question). Round 10 personality pass rewrote ~350 flat lines |
 | 2-state UI | Done | Idle (scrollable list of all 200 shuffled questions) → result (no intermediate question phase) |
 | Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop, works on both idle and result screens |
 | Haptics | Done | 3 patterns: question reveal, verdict reveal, share success |
@@ -114,7 +114,7 @@ Replaced the generic icon with the Ducky Drip base SVG (`app/icon.svg`). Cropped
 
 1. **Visual QA on share card** — Test PNG export quality across devices, verify card looks good when shared on social/chat
 2. **Real-device testing** — Shake threshold tuning on physical iOS and Android devices
-3. **Content QA pass** — Human review of all 200 questions and category-specific verdicts for tone consistency
+3. ~~**Content QA pass**~~ — Done. Round 10 personality pass: ~350 flat lines rewritten across all 10 categories
 4. **Typography confirmation** — Inter is placeholder. Confirm against official media kit
 5. ~~**Custom domain**~~ — Done. CNAME set to `askducky.app`, basePath removed
 
