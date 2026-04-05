@@ -9,7 +9,7 @@ Ask Ducky is a mobile-first, share-first web toy. Users pick from a scrollable l
 - **PRD:** `ask_ducky_prd.md` — Full product requirements, content rules, tone guidance, visual direction, share strategy
 - **Architecture:** `docs/architecture.md` — State machine, content engine flow, component tree, library interfaces, share flow, offline strategy, CSS architecture
 - **Implementation plan:** `docs/implementation-plan.md` — Current status, key decisions, what's still needed
-- **Changelog:** `docs/changelog.md` — All issues discovered and fixed, with rationale
+- **Changelog:** `docs/changelog.md` — All issues discovered and fixed, with rationale (Rounds 1-5 are historical; current architecture starts Round 6+)
 - **Brand tokens:** `docs/brand-tokens.md` — Token extraction status, mascot mood mapping
 
 ## Commands
@@ -27,7 +27,7 @@ npx tsc --noEmit     # Type check
 - **Repo:** https://github.com/ente-toys/askducky
 - **Auto-deploy:** Every push to `main` triggers `.github/workflows/deploy.yml`
 - **Static export:** `output: "export"` in `next.config.ts`, served from `out/`
-- **Conditional basePath:** `next.config.ts` checks `process.env.CUSTOM_DOMAIN`. When set (GitHub Actions repo variable), basePath is `""` for `askducky.app`. When unset, falls back to `/askducky` for `ente-toys.github.io`. All static asset references in components use `process.env.NEXT_PUBLIC_BASE_PATH` prefix. Do NOT use `next/image` (doesn't work with `output: "export"` + `unoptimized: true`). Use plain `<img>` instead.
+- **Conditional basePath:** `next.config.ts` checks `process.env.CUSTOM_DOMAIN`. When set (GitHub Actions repo variable), basePath is `""` for `askducky.app`. When unset, falls back to `/askducky` for `ente-toys.github.io`. All static asset references in components use `basePath` from `lib/config.ts`. Do NOT use `next/image` (doesn't work with `output: "export"` + `unoptimized: true`). Use plain `<img>` instead.
 - **Favicon:** `app/icon.svg` — cropped Ducky Drip base SVG (viewBox tightly framing the ducky for visibility at 16-32px).
 
 ## Architecture summary

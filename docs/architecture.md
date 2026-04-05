@@ -180,4 +180,4 @@ handleShare()
 | `--font-display` | Inter (via next/font) | Placeholder — pending media kit |
 | `--font-body` | Inter (via next/font) | Placeholder — pending media kit |
 
-These are defined in `app/globals.css` and referenced throughout. `app/data/brandTokens.ts` holds the same values as a TypeScript object for programmatic use.
+These are defined in `app/globals.css` and referenced throughout via `var(--token)` in CSS.

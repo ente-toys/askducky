@@ -41,32 +41,6 @@ export interface ShareCaptionTemplate {
   text: string;
 }
 
-export interface DesignTokens {
-  colors: {
-    bg: string;
-    bgElevated: string;
-    surface: string;
-    surfaceStrong: string;
-    text: string;
-    muted: string;
-    accent: string;
-    accentSoft: string;
-    warning: string;
-  };
-  typography: {
-    display: string;
-    body: string;
-    verdictWeight: number;
-    questionWeight: number;
-  };
-  radius: {
-    xl: number;
-    lg: number;
-    md: number;
-  };
-  shadow: string;
-}
-
 export interface PlayResult {
   question: Question;
   verdict: QuestionVerdict;

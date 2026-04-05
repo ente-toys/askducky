@@ -33,82 +33,31 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 | Figma MCP | Done | Authenticated as setal@ente.io, design system and Ducky assets explored |
 | GitHub Pages | Done | Auto-deploy on push to main, custom domain `askducky.app` |
 
-## Key decisions made during implementation
+## Key decisions (current)
 
-### Content engine: category-aware verdicts and afterburns
-The original implementation used a single global pool for verdicts and afterburns. This caused dissonant pairings (e.g., a question about album sharing getting a verdict about "settings tweaks"). We restructured to:
-- Tag verdicts and afterburns with `categoryIds`
-- Engine prefers category-matched content (70% weight)
-- Falls back to global pool when category pool is empty or by chance (30%)
+### Per-question verdicts and afterburns
+Each question has 3 inline verdicts (each tagged with a verdict family) and 3 inline afterburns. The engine picks 1 of each randomly, giving 9 combinations per question — always relevant to the question asked.
 
-### Content tone: grounded questions over forced humor
-The original questions were over-written with forced punchlines ("Is it trying to illuminate my soul?"). We rewrote all 200 questions to sound like real things a person would wonder ("A flashlight app is asking for access to my contacts. Should I allow it?").
+### 2-state flow
+Idle screen shows all 200 questions in a scrollable shuffled list. Tapping a question or shaking goes directly to the result screen. Shake works on both screens.
 
-### Mood-verdict correlation
-Mood was originally picked randomly, creating dissonant combinations (e.g., "impressed" face with "Absolutely not" verdict). We added a `moodsByFamily` mapping so mood selection correlates with the verdict family.
+### Static export with conditional basePath
+`output: "export"` for GitHub Pages. `CUSTOM_DOMAIN` env var controls basePath (`""` for askducky.app, `/askducky` for ente-toys.github.io). All static asset paths use `basePath` from `lib/config.ts`. `next/image` doesn't work with static export — use plain `<img>` tags.
 
-### Result screen: share card as hero
-The original result screen showed the question/verdict/afterburn as inline text AND rendered the full ShareCard below it. We consolidated to show only the ShareCard as the hero of the result screen, with controls below.
+### Service worker: network-first
+Pre-cached assets serve network-first with cache fallback for offline. `skipWaiting()` + `clients.claim()` for immediate activation. Cache name bumped on breaking changes. Auto-detects basePath from `self.location.pathname`.
 
-### 5 verdict families including soft_roast
-The PRD tone ladder listed 5 families but the initial content only seeded 4. We explicitly authored soft_roast content (20 global + per-category lines) during the content sprint.
+### Ducky Drip randomized avatars
+Layered SVGs (base + cap + shoes + shades + accessories) from 48 assets. ~20% chance per category to be empty, guaranteeing at least one item. `dripAccentColor()` extracts the most colorful accessory color for share card tinting.
 
-### Font loading
-The original implementation declared "Avenir Next" and "Inter" in CSS but never loaded either font. We added `next/font/google` for Inter, wired through CSS variables. Display and body both use Inter until the official media kit provides font guidance.
-
-### Service worker strategy
-The original SW only pre-cached 3 URLs. We improved to: pre-cached assets serve cache-first, same-origin JS/CSS chunks cache on first fetch with offline fallback, external requests are network-only. All paths are basePath-aware for GitHub Pages.
-
-### Ducky mood illustrations via props/accessories
-The Figma file has only one base Ducky expression (happy/content). There are no mood-specific facial expressions. Instead, we mapped moods to different prop/accessory combinations (trophy ducky = smug, cat-grabbing ducky = horrified, camera ducky = side_eye, etc.).
-
-### Static export with basePath for GitHub Pages
-Switched from `output: "standalone"` to `output: "export"` for GitHub Pages deployment. All static asset paths in components use `process.env.NEXT_PUBLIC_BASE_PATH` prefix. Note: `next/image` with `unoptimized: true` does NOT prepend basePath in static export — use plain `<img>` tags instead.
+### Share card unique visuals
+6 CSS texture patterns × drip-derived diagonal color wash. Footer hidden in web view, shown in exported image via `data-export-mode` attribute.
 
 ### Motion permission auto-detection
-The "Enable shake" button was showing on all platforms. Fixed by calling `requestMotionPermission()` on mount — on Android/desktop it resolves immediately to "granted" (no permission API), hiding the button. On iOS the button remains since Safari requires a user gesture.
+`requestMotionPermission()` on mount. Android/desktop resolve immediately to "granted". iOS shows "Enable shake" link since Safari requires a user gesture.
 
-### UX redesign: 2-state flow with question cards
-The original 3-state flow (idle → question → result) added an unnecessary intermediate step. Redesigned to 2 states:
-- **Idle**: Shows all 200 questions in a scrollable shuffled list (273px max-height). User taps one to go directly to result, or shakes for a random question → result.
-- **Result**: Share card renders outside the main card container (no double bounding box). "Share the advice" + "Ask Ducky again" buttons side-by-side. Shake hint with shimmer below buttons. Shake works here too — goes directly to new result.
-
-### Topbar redesign
-Replaced the plain "Ask Ducky" badge with: left side = clickable ducky icon + "AskDucky.app" text (resets to home); right side = "Made with ❤️" (small) + "ente" (large) linking to `ente.com/?utm_source=askducky`.
-
-### Share card restructured
-- Removed 1:1 aspect ratio, replaced with `max-height: calc(100svh - 260px)` for viewport fit
-- DuckyMood moved from small top-right (92px) to centered (100px) between question and verdict
-- Question text gets a frosted background panel to stand out
-- Footer text changed from random share footers to fixed "Ducky is judging your privacy choices"
-- Verdict and afterburn are center-aligned
-
-### No-scroll viewport fit
-Both home and result screens are constrained to the viewport height to prevent page scrolling on mobile. Home card uses `max-height: calc(100svh - 120px)` with internal `overflow-y: auto`; result card uses `max-height: calc(100svh - 260px)`.
-
-### Service worker: network-first and auto-update
-The original SW used cache-first for pre-cached assets (including HTML), causing new deploys to be invisible. Fixed by:
-- Switching to network-first with cache fallback for offline
-- Adding `skipWaiting()` + `clients.claim()` for immediate SW activation
-- Bumping cache name on breaking changes to invalidate old caches
-
-### Ducky Drip replaces static mood illustrations
-The 8 static DuckyMood PNGs (one per mood) made every result look similar. Replaced with randomized Ducky Drip avatars — layered SVGs (base + cap + shoes + shades + accessories) from the `ente-toys/Ducky-drip` private repo. Each result gets a unique ducky combination from 48 SVG assets (14 caps, 12 shoes, 12 shades, 9 accessories). ~20% chance per category to be empty, guaranteeing at least one item. The `DuckyDrip` component uses absolutely positioned `<img>` tags matching the original Ducky Drip `AvatarPreview.jsx` approach.
-
-### Haptics on question tap (double-pulse)
-The existing `hapticForQuestionReveal()` function was defined but never called. Now fires when the user taps a question card, followed immediately by `hapticForVerdictReveal()` inside `goToResult()`, creating a two-beat tactile rhythm. All haptic durations scaled ~1.55x for a more noticeable feel.
-
-### Randomized background color themes
-The page background was a static dark green with faint gradients. Added 7 color themes (emerald, aurora, sunset, ocean, neon, golden, cosmic) applied via CSS custom properties on `<html>`. Randomly selected on mount and rotated on each "Ask again". A slow 40s `bgDrift` CSS animation adds ambient movement. The flat `#07110b` base on `html` (no vertical gradient) ensures blobs are equally visible top to bottom.
-
-### Share card footer redesign
-Replaced the plain "askducky.app" URL text with a branded footer: ducky hero icon (24px) + "AskDucky.app" in bold (matching topbar style). Added a horizontal divider line between the afterburn text and footer. Removed the redundant "Ask Ducky" header from the share card since the topbar already shows it.
-
-### Custom domain askducky.app with conditional basePath
-Switched from `ente-toys.github.io/askducky/` to custom domain `askducky.app`. The basePath in `next.config.ts` is conditional — reads `CUSTOM_DOMAIN` env var (set as a GitHub Actions repo variable). When set, basePath drops to `""` and the app serves from root. The SW auto-detects its base path from `self.location.pathname` so it works in both modes. CNAME file in `public/` ensures GitHub Pages serves the custom domain.
-
-### Favicon: cropped Ducky Drip base
-Replaced the generic icon with the Ducky Drip base SVG (`app/icon.svg`). Cropped the viewBox from 713×937 to 580×560 centered on the ducky so it renders clearly at favicon sizes (16-32px).
+### Font loading
+Inter via `next/font/google`, wired through CSS variables. Placeholder pending official media kit confirmation.
 
 ## What's still needed for launch
 

@@ -1,8 +1,7 @@
 import styles from "./ShareCard.module.css";
 import { DuckyDrip } from "@/components/DuckyDrip";
 import type { PlayResult } from "@/lib/types";
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+import { basePath } from "@/lib/config";
 
 function hexToRgb(hex: string): string {
   const r = parseInt(hex.slice(1, 3), 16);

@@ -17,8 +17,7 @@ import { requestMotionPermission, createShakeController } from "@/lib/shake";
 import { sharePayload } from "@/lib/share";
 import { loadHistory, pushHistory, saveHistory } from "@/lib/storage";
 import type { DripConfig, PlayResult, Question } from "@/lib/types";
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+import { basePath } from "@/lib/config";
 
 type Phase = "idle" | "result";
 type MotionState = "unknown" | "granted" | "denied" | "unsupported";

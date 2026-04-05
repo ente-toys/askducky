@@ -65,41 +65,34 @@ Make users want to **share the result immediately**.
 ## Core experience
 
 ### Core loop
-1. User opens app
-2. User **shakes phone** or taps **Get a question**
-3. A random privacy question appears
-4. User **shakes again** or taps **Reveal Ducky’s verdict**
-5. A witty answer card animates in
-6. Primary CTA is **Share**
-7. Secondary CTA is **Ask again**
+1. User opens app → idle screen with scrollable list of all 200 shuffled questions
+2. User **taps a question** or **shakes phone** for a random one
+3. Share card animates in with Ducky’s verdict + randomized Ducky Drip avatar
+4. Primary CTA is **Share the advice**
+5. Secondary CTA is **Ask Ducky again**
+6. Shake works on both screens — always goes to a new result
 
 ### Mobile interaction model
-- **Primary interaction:** shake
-- **Fallback interaction:** button
-- **Desktop fallback:** click/tap buttons
+- **Primary interaction:** tap a question from the scrollable list, or shake
+- **Fallback interaction:** shake hint with “or pick one” sub-text
+- **Desktop fallback:** click/tap questions from the list
 
 ### State model
 #### State 1: Idle / landing
-- Ask Ducky branding
-- hero object / orb / duck-ball hybrid
-- hint text: “Shake for a privacy question”
-- fallback CTA: “Get a question”
+- Topbar: clickable ducky + “AskDucky.app” (left), “Made with ❤️ / ente” (right)
+- Hero DuckyDrip (180px, randomized)
+- Subtitle: “Privacy advice from a judgmental duck”
+- Shimmer shake hint with “or pick one” sub-text
+- Scrollable list of all 200 questions (shuffled, 273px max-height)
 
-#### State 2: Question revealed
-- large question text
-- hint text: “Shake for Ducky’s verdict”
-- fallback CTA: “Reveal verdict”
-- tertiary text/button: “New question”
-
-#### State 3: Result / share
-- question
-- verdict
-- afterburn line
-- Ducky mood / pose / expression
-- result card preview
-- **primary CTA:** Share
-- **secondary CTA:** Ask again
-- tertiary CTA: Save image / Copy link (optional)
+#### State 2: Result / share
+- Share card as hero (outside card container):
+  - Header tagline, question in frosted panel, centered DuckyDrip (180px), verdict, afterburn
+  - 6 texture overlays × drip-derived color wash for unique card visuals
+  - Footer (hidden in web, shown in exported image)
+- **primary CTA:** Share the advice
+- **secondary CTA:** Ask Ducky again
+- Shimmer shake hint below buttons
 
 ---
 

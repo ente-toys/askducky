@@ -32,22 +32,21 @@ npx vitest run
 ```
 app/
   data/
-    content.ts          # All content: questions, verdicts, afterburns, moods, footers, captions
-    brandTokens.ts      # Design tokens (colors, typography, spacing, shadows)
+    content.ts          # All content: questions, verdicts, afterburns, captions, textures
   globals.css           # CSS custom properties and global styles
   layout.tsx            # Root layout with font loading (next/font)
   page.tsx              # Single page — renders AskDuckyShell
 components/
-  AskDuckyShell.tsx     # Main state machine (idle/question/result) and all interaction logic
+  AskDuckyShell.tsx     # Main state machine (idle/result) and all interaction logic
   AskDuckyShell.module.css
-  ShareCard.tsx         # Export-ready square card with category-specific visual variants
+  ShareCard.tsx         # Export-ready card with texture overlays and drip-derived color wash
   ShareCard.module.css
-  OrbHero.tsx           # Placeholder duck SVG (replace with official mascot)
-  DuckyMood.tsx         # Mood indicator (ASCII placeholder, replace with mascot poses)
-  MotionPermissionGate.tsx  # iOS motion permission request button
+  DuckyDrip.tsx         # Randomized ducky avatar from layered SVGs
   ServiceWorkerRegister.tsx # PWA service worker registration
 lib/
+  config.ts             # Shared basePath constant
   contentEngine.ts      # Question selection, verdict resolution, result composition
+  duckyDrip.ts          # Random drip config generation and accent color extraction
   types.ts              # All TypeScript interfaces
   shake.ts              # DeviceMotion shake detection with iOS permission
   haptics.ts            # Vibration patterns for question/verdict/share

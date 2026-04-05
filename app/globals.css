@@ -2,16 +2,12 @@
   --bg: #f7f5f0;
   --bg-elevated: #ffffff;
   --surface: #f0ede6;
-  --surface-strong: #e8e5de;
   --text: #1c1c1c;
   --muted: #6b6966;
   --accent: #08C225;
-  --accent-soft: rgba(8, 194, 37, 0.10);
-  --accent-text: #057C18;
   --action: #e8614d;
   --line: #e5e2db;
-  --line-strong: rgba(28, 28, 28, 0.15);
-  --warning: #d08a11;
+
   --radius-xl: 24px;
   --radius-lg: 16px;
   --radius-md: 12px;

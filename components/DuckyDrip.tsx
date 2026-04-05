@@ -1,6 +1,5 @@
 import type { DripConfig } from "@/lib/types";
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+import { basePath } from "@/lib/config";
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");

@@ -2,6 +2,8 @@
 
 Issues discovered and fixed during implementation.
 
+> **Note:** Rounds 1-5 document fixes to components and patterns that have since been replaced (OrbHero, DuckyMood, dark theme, 3-state flow, global verdict pools). They are retained for historical context but do not describe the current codebase. The current architecture starts from Round 6 onward.
+
 ## Round 1: Implementation review
 
 After the first implementation was complete and running at localhost:3000, a full code review against the PRD and execution plan identified 11 issues. 8 were fixed immediately.
