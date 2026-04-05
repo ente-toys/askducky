@@ -5,8 +5,6 @@ export type VerdictFamily =
   | "chaos"
   | "soft_roast";
 
-export type QuestionSeverity = "high" | "medium" | "low";
-
 export type CategoryId =
   | "permissions"
   | "ai_apps"
@@ -19,38 +17,23 @@ export type CategoryId =
   | "public_wifi_travel"
   | "links_backups";
 
+export interface QuestionVerdict {
+  family: VerdictFamily;
+  text: string;
+}
+
 export interface Question {
   id: string;
   categoryId: CategoryId;
   text: string;
-  severity: QuestionSeverity;
-  tags: string[];
-  weight?: number;
-  preferredFamilies?: VerdictFamily[];
+  verdicts: [QuestionVerdict, QuestionVerdict, QuestionVerdict];
+  afterburns: [string, string, string];
 }
 
 export interface Category {
   id: CategoryId;
   name: string;
   weight: number;
-}
-
-export interface VerdictLine {
-  id: string;
-  family: VerdictFamily;
-  text: string;
-  categoryIds?: CategoryId[];
-}
-
-export interface AfterburnLine {
-  id: string;
-  text: string;
-  categoryIds?: CategoryId[];
-}
-
-export interface ShareFooter {
-  id: string;
-  text: string;
 }
 
 export interface ShareCaptionTemplate {
@@ -86,9 +69,8 @@ export interface DesignTokens {
 
 export interface PlayResult {
   question: Question;
-  verdict: VerdictLine;
-  afterburn: AfterburnLine;
-  footer: ShareFooter;
+  verdict: QuestionVerdict;
+  afterburn: string;
   caption: ShareCaptionTemplate;
   visualVariant: string;
   dripConfig: DripConfig;

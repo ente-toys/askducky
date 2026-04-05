@@ -20,7 +20,7 @@ export function ShareCard({
       </div>
       <div className={styles.content}>
         <h3 className={styles.verdict}>{result.verdict.text}</h3>
-        <p className={styles.afterburn}>{result.afterburn.text}</p>
+        <p className={styles.afterburn}>{result.afterburn}</p>
       </div>
       <div className={styles.divider} />
       <div className={styles.footer}>

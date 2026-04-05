@@ -39,8 +39,13 @@ export function AskDuckyShell() {
     const saved = historyRef.current.motionPermission ?? "unknown";
     setMotionPermission(saved);
     if (historyRef.current.lastResult) {
-      resultRef.current = historyRef.current.lastResult;
-      setResult(historyRef.current.lastResult);
+      const saved = historyRef.current.lastResult;
+      // Migration: old format had afterburn as { id, text } object
+      if (saved.afterburn && typeof saved.afterburn === "object") {
+        saved.afterburn = (saved.afterburn as unknown as { text: string }).text;
+      }
+      resultRef.current = saved;
+      setResult(saved);
     }
 
     setDisplayedQuestions(shuffleAllQuestions());
@@ -78,7 +83,7 @@ export function AskDuckyShell() {
     const nextHistory = pushHistory(
       historyRef.current,
       playResult.question.id,
-      playResult.verdict.id,
+      `${playResult.question.id}_v${playResult.question.verdicts.indexOf(playResult.verdict)}`,
     );
     nextHistory.lastResult = playResult;
     nextHistory.motionPermission = motionPermission;
@@ -174,7 +179,7 @@ export function AskDuckyShell() {
       const plainText = [
         resultRef.current.question.text,
         resultRef.current.verdict.text,
-        resultRef.current.afterburn.text,
+        resultRef.current.afterburn,
         "askducky.app",
       ].join("\n");
       const fallbackBlob = new Blob([plainText], { type: "text/plain" });

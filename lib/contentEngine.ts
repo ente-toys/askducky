@@ -1,55 +1,24 @@
 import {
-  afterburns,
   categories,
   questions,
   shareCaptions,
-  shareFooters,
-  verdicts,
   visualVariantsByCategory,
 } from "@/app/data/content";
 import { randomDripConfig } from "@/lib/duckyDrip";
 import { pickRandom, pickWeightedRandom } from "@/lib/randomize";
-import type { PlayResult, Question, RecentHistory, VerdictFamily, VerdictLine } from "@/lib/types";
+import type { PlayResult, Question, RecentHistory } from "@/lib/types";
 
 function filterRecent<T extends { id: string }>(items: T[], recentIds: string[]): T[] {
   const filtered = items.filter((item) => !recentIds.includes(item.id));
   return filtered.length > 0 ? filtered : items;
 }
 
-function resolveFamily(question: Question): VerdictFamily {
-  if (question.preferredFamilies?.length) {
-    if (question.severity === "high" && question.preferredFamilies.includes("hard_no")) {
-      return Math.random() > 0.4 ? "hard_no" : pickRandom(question.preferredFamilies);
-    }
-
-    if (question.severity === "low" && question.preferredFamilies.includes("soft_roast")) {
-      return Math.random() > 0.45 ? "soft_roast" : pickRandom(question.preferredFamilies);
-    }
-
-    return pickRandom(question.preferredFamilies);
-  }
-
-  return question.severity === "high" ? "hard_no" : "cautious_maybe";
-}
-
-function pickVerdict(question: Question, recentVerdictIds: string[]): VerdictLine {
-  const family = resolveFamily(question);
-  const familyPool = verdicts.filter((line) => line.family === family);
-
-  // Prefer category-specific verdicts, fall back to global
-  const categoryPool = familyPool.filter(
-    (line) => line.categoryIds?.includes(question.categoryId),
+function pickVerdictIndex(questionId: string, recentVerdictIds: string[]): number {
+  const indices = [0, 1, 2];
+  const available = indices.filter(
+    (i) => !recentVerdictIds.includes(`${questionId}_v${i}`),
   );
-  const globalPool = familyPool.filter(
-    (line) => !line.categoryIds || line.categoryIds.length === 0,
-  );
-
-  // Try category-specific first (70% chance if available), then global
-  const preferCategory = categoryPool.length > 0 && Math.random() < 0.7;
-  const primary = preferCategory ? categoryPool : globalPool.length > 0 ? globalPool : familyPool;
-
-  const filtered = filterRecent(primary, recentVerdictIds);
-  return pickRandom(filtered);
+  return pickRandom(available.length > 0 ? available : indices);
 }
 
 function pickQuestion(history: RecentHistory): Question {
@@ -58,24 +27,7 @@ function pickQuestion(history: RecentHistory): Question {
     questions.filter((item) => item.categoryId === category.id),
     history.questionIds,
   );
-
   return pickRandom(categoryQuestions);
-}
-
-function pickAfterburn(categoryId: string, recentIds: string[]) {
-  // Prefer category-specific afterburns, fall back to global
-  const categoryPool = afterburns.filter(
-    (line) => line.categoryIds?.includes(categoryId as never),
-  );
-  const globalPool = afterburns.filter(
-    (line) => !line.categoryIds || line.categoryIds.length === 0,
-  );
-
-  const preferCategory = categoryPool.length > 0 && Math.random() < 0.7;
-  const primary = preferCategory ? categoryPool : globalPool.length > 0 ? globalPool : afterburns;
-
-  const filtered = filterRecent(primary, recentIds);
-  return pickRandom(filtered);
 }
 
 export function shuffleAllQuestions(): Question[] {
@@ -88,14 +40,16 @@ export function shuffleAllQuestions(): Question[] {
 }
 
 export function generatePlayResultForQuestion(question: Question, history: RecentHistory): PlayResult {
-  const verdict = pickVerdict(question, history.verdictIds);
-  const footer = pickRandom(shareFooters);
-  const afterburn = pickAfterburn(question.categoryId, []);
-  const caption = pickRandom(shareCaptions);
-  const visualVariant = pickRandom(visualVariantsByCategory[question.categoryId]);
-  const dripConfig = randomDripConfig();
-
-  return { question, verdict, afterburn, footer, caption, visualVariant, dripConfig };
+  const vi = pickVerdictIndex(question.id, history.verdictIds);
+  const ai = Math.floor(Math.random() * 3);
+  return {
+    question,
+    verdict: question.verdicts[vi],
+    afterburn: question.afterburns[ai],
+    caption: pickRandom(shareCaptions),
+    visualVariant: pickRandom(visualVariantsByCategory[question.categoryId]),
+    dripConfig: randomDripConfig(),
+  };
 }
 
 export function generatePlayResult(history: RecentHistory): PlayResult {

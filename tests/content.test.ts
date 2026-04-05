@@ -1,32 +1,41 @@
 import { describe, expect, test } from "vitest";
 import {
-  afterburns,
   questions,
   shareCaptions,
-  shareFooters,
-  verdicts,
 } from "@/app/data/content";
 import { generatePlayResult } from "@/lib/contentEngine";
 import { trimRecent } from "@/lib/storage";
 
 describe("content pack", () => {
-  test("meets launch content targets", () => {
-    expect(questions.length).toBeGreaterThanOrEqual(180);
-    expect(questions.length).toBeLessThanOrEqual(250);
-    expect(verdicts.length).toBeGreaterThanOrEqual(80);
-    expect(verdicts.length).toBeLessThanOrEqual(200);
-    expect(afterburns.length).toBeGreaterThanOrEqual(60);
-    expect(afterburns.length).toBeLessThanOrEqual(100);
-    expect(shareFooters.length).toBeGreaterThanOrEqual(12);
-    expect(shareFooters.length).toBeLessThanOrEqual(20);
-    expect(shareCaptions.length).toBeGreaterThan(0);
+  test("has exactly 200 questions (20 per category)", () => {
+    expect(questions.length).toBe(200);
   });
 
-  test("includes all verdict families including soft roast", () => {
-    const families = new Set(verdicts.map((item) => item.family));
-    expect(families).toEqual(
+  test("each question has exactly 3 verdicts and 3 afterburns", () => {
+    for (const q of questions) {
+      expect(q.verdicts).toHaveLength(3);
+      expect(q.afterburns).toHaveLength(3);
+    }
+  });
+
+  test("each question's verdicts span at least 2 different families", () => {
+    for (const q of questions) {
+      const families = new Set(q.verdicts.map((v) => v.family));
+      expect(families.size).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  test("all 5 verdict families are represented across all questions", () => {
+    const allFamilies = new Set(
+      questions.flatMap((q) => q.verdicts.map((v) => v.family)),
+    );
+    expect(allFamilies).toEqual(
       new Set(["hard_no", "cautious_maybe", "approved", "chaos", "soft_roast"]),
     );
+  });
+
+  test("share captions exist", () => {
+    expect(shareCaptions.length).toBeGreaterThan(0);
   });
 });
 
@@ -39,9 +48,9 @@ describe("content engine", () => {
     });
 
     expect(result.question.id).toBeTruthy();
-    expect(result.verdict.id).toBeTruthy();
-    expect(result.afterburn.id).toBeTruthy();
-    expect(result.footer.id).toBeTruthy();
+    expect(result.verdict.text).toBeTruthy();
+    expect(typeof result.afterburn).toBe("string");
+    expect(result.afterburn.length).toBeGreaterThan(0);
     expect(result.caption.id).toBeTruthy();
     expect(result.visualVariant).toBeTruthy();
   });
