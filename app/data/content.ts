@@ -2690,15 +2690,11 @@ function buildQuestions(): Question[] {
 
 export const questions = buildQuestions();
 
-export const visualVariantsByCategory: Record<CategoryId, string[]> = {
-  permissions: ["alert-halo", "scan-lines"],
-  ai_apps: ["scan-lines", "vault-beam"],
-  cloud_storage: ["vault-beam", "soft-cloud"],
-  photo_sharing: ["film-glow", "soft-cloud"],
-  family_groups: ["soft-cloud", "film-glow"],
-  messaging: ["alert-halo", "soft-cloud"],
-  passwords_passkeys: ["vault-beam", "alert-halo"],
-  signups_phone: ["scan-lines", "film-glow"],
-  public_wifi_travel: ["vault-beam", "scan-lines"],
-  links_backups: ["alert-halo", "film-glow"],
-};
+export const textures: string[] = [
+  "grain",
+  "dots",
+  "crosshatch",
+  "waves",
+  "confetti",
+  "mesh",
+];

@@ -72,7 +72,8 @@ export interface PlayResult {
   verdict: QuestionVerdict;
   afterburn: string;
   caption: ShareCaptionTemplate;
-  visualVariant: string;
+  texture: string;
+  accentColor: string;
   dripConfig: DripConfig;
 }
 

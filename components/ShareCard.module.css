@@ -10,11 +10,60 @@
   gap: 16px;
 }
 
-.alert-halo { background-image: radial-gradient(circle at 50% 15%, rgba(8, 194, 37, 0.08), transparent 40%); }
-.scan-lines { background-image: repeating-linear-gradient(180deg, rgba(28,28,28,0.02) 0 1px, transparent 1px 8px); }
-.vault-beam { background-image: linear-gradient(120deg, transparent 20%, rgba(8,194,37,0.06) 50%, transparent 80%); }
-.soft-cloud { background-image: radial-gradient(circle at 30% 20%, rgba(255,180,160,0.08), transparent 40%); }
-.film-glow { background-image: radial-gradient(circle at 80% 20%, rgba(208,138,17,0.10), transparent 35%); }
+/* --- Texture overlays + drip-tint gradient wash --- */
+/* Each texture gets a different --tint-angle so same color + different texture looks distinct */
+/* Textures use --tr (accent RGB) for colored patterns that match the ducky's outfit */
+
+.grain {
+  --tint-angle: 135deg;
+  background-image:
+    var(--card-tint, none),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+  background-size: cover, 150px 150px;
+}
+
+.dots {
+  --tint-angle: 225deg;
+  background-image:
+    var(--card-tint, none),
+    radial-gradient(circle, rgba(var(--tr), 0.12) 1px, transparent 1px);
+  background-size: cover, 14px 14px;
+}
+
+.crosshatch {
+  --tint-angle: 180deg;
+  background-image:
+    var(--card-tint, none),
+    repeating-linear-gradient(45deg, rgba(var(--tr), 0.07) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(-45deg, rgba(var(--tr), 0.07) 0 1px, transparent 1px 12px);
+}
+
+.waves {
+  --tint-angle: 315deg;
+  background-image:
+    var(--card-tint, none),
+    url("data:image/svg+xml,%3Csvg width='80' height='20' viewBox='0 0 80 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q20 0 40 10 Q60 20 80 10' fill='none' stroke='rgba(28,28,28,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: cover, 80px 20px;
+}
+
+.confetti {
+  --tint-angle: 160deg;
+  background-image:
+    var(--card-tint, none),
+    radial-gradient(circle 2px, rgba(var(--tr), 0.14) 100%, transparent),
+    radial-gradient(circle 1.5px, rgba(var(--tr), 0.10) 100%, transparent),
+    radial-gradient(circle 2px, rgba(var(--tr), 0.12) 100%, transparent);
+  background-size: cover, 47px 43px, 31px 37px, 59px 53px;
+  background-position: center, 0 0, 14px 21px, 33px 7px;
+}
+
+.mesh {
+  --tint-angle: 200deg;
+  background-image:
+    var(--card-tint, none),
+    radial-gradient(ellipse at 25% 30%, rgba(var(--tr), 0.08), transparent 50%),
+    radial-gradient(ellipse at 75% 70%, rgba(var(--tr), 0.06), transparent 50%);
+}
 
 .headerTagline {
   margin: 0;
@@ -131,4 +180,3 @@
   align-items: center;
   gap: 12px;
 }
-

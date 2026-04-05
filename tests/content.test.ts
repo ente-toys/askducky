@@ -52,7 +52,8 @@ describe("content engine", () => {
     expect(typeof result.afterburn).toBe("string");
     expect(result.afterburn.length).toBeGreaterThan(0);
     expect(result.caption.id).toBeTruthy();
-    expect(result.visualVariant).toBeTruthy();
+    expect(result.texture).toBeTruthy();
+    expect(result.accentColor).toMatch(/^#[0-9A-Fa-f]{6}$/);
   });
 });
 

@@ -44,6 +44,11 @@ export function AskDuckyShell() {
       if (saved.afterburn && typeof saved.afterburn === "object") {
         saved.afterburn = (saved.afterburn as unknown as { text: string }).text;
       }
+      // Migration: old format had visualVariant instead of texture/accentColor
+      if (!saved.texture) {
+        saved.texture = "grain";
+        saved.accentColor = "#08C225";
+      }
       resultRef.current = saved;
       setResult(saved);
     }

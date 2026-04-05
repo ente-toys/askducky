@@ -4,13 +4,29 @@ import type { PlayResult } from "@/lib/types";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `${r}, ${g}, ${b}`;
+}
+
 export function ShareCard({
   result,
 }: {
   result: PlayResult;
 }) {
+  const rgb = hexToRgb(result.accentColor);
+  const cardStyle: React.CSSProperties = {
+    ["--card-tint" as string]: `linear-gradient(var(--tint-angle, 135deg), transparent 20%, rgba(${rgb}, 0.25) 100%)`,
+    ["--tr" as string]: rgb,
+  };
+
   return (
-    <div className={`${styles.card} ${styles[result.visualVariant] ?? ""}`}>
+    <div
+      className={`${styles.card} ${styles[result.texture] ?? ""}`}
+      style={cardStyle}
+    >
       <p className={styles.headerTagline}>Privacy advice from a judgmental duck</p>
       <div className={styles.questionWrap}>
         <p className={styles.question}>{result.question.text}</p>

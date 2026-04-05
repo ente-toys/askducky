@@ -2,9 +2,9 @@ import {
   categories,
   questions,
   shareCaptions,
-  visualVariantsByCategory,
+  textures,
 } from "@/app/data/content";
-import { randomDripConfig } from "@/lib/duckyDrip";
+import { dripAccentColor, randomDripConfig } from "@/lib/duckyDrip";
 import { pickRandom, pickWeightedRandom } from "@/lib/randomize";
 import type { PlayResult, Question, RecentHistory } from "@/lib/types";
 
@@ -42,13 +42,15 @@ export function shuffleAllQuestions(): Question[] {
 export function generatePlayResultForQuestion(question: Question, history: RecentHistory): PlayResult {
   const vi = pickVerdictIndex(question.id, history.verdictIds);
   const ai = Math.floor(Math.random() * 3);
+  const dripConfig = randomDripConfig();
   return {
     question,
     verdict: question.verdicts[vi],
     afterburn: question.afterburns[ai],
     caption: pickRandom(shareCaptions),
-    visualVariant: pickRandom(visualVariantsByCategory[question.categoryId]),
-    dripConfig: randomDripConfig(),
+    texture: pickRandom(textures),
+    accentColor: dripAccentColor(dripConfig),
+    dripConfig,
   };
 }
 
