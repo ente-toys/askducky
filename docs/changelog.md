@@ -328,3 +328,60 @@ Replaced the 3-card question picker with a scrollable list of all 200 shuffled q
 **Problem:** Home screen question cards and share card question text used different font sizes and line heights.
 **Fix:** Both normalized to `1rem` / `1.4` line-height.
 **Files:** `components/AskDuckyShell.module.css`, `components/ShareCard.module.css`
+
+## Round 8: Content engine overhaul — per-question verdicts and afterburns
+
+Replaced the shared verdict/afterburn pool system with per-question content. Every question now has 3 inline verdicts and 3 inline afterburns (9 possible combinations), ensuring answers are always relevant to the question asked. All 200 questions rewritten to be shorter and more consumer-friendly. Content engine simplified from ~104 to ~60 lines.
+
+### Fixed
+
+#### 58. Verdicts felt random and disconnected from questions (Major)
+**Problem:** The shared pool of 156 verdicts was matched to questions by category (70% preference) with global fallback (30%). This often produced dissonant pairings — a question about flashlight permissions getting a generic "proceed with caution" verdict.
+**Fix:** Each of the 200 questions now has 3 inline verdicts (each tagged with a verdict family) and 3 inline afterburns. The engine picks 1 of each randomly. Total: 600 verdicts + 600 afterburns, all specific to their question. Removed `resolveFamily()`, `pickVerdict()`, `pickAfterburn()`, `inferSeverity()`, `categoryDefaultFamilies`, and shared verdict/afterburn pools.
+**Files:** `app/data/content.ts`, `lib/contentEngine.ts`, `lib/types.ts`
+
+#### 59. Questions were too long and over-written (Major)
+**Problem:** Many questions were 80-100+ characters and tried to be clever ("A flashlight app is asking for access to my contacts. Should I allow it?"). They did not sound like things a normal person would actually ask.
+**Fix:** Rewrote all 200 questions to be shorter (~60 chars target) and more natural: "Should I let a flashlight app access my contacts?" Simple questions a common consumer would have or a privacy-aware friend would share.
+**Files:** `app/data/content.ts`
+
+#### 60. Verdicts lacked personality and wit (Significant)
+**Problem:** Initial per-question verdicts read like safety advice ("A flashlight does not need your contacts. Deny it.") instead of Ducky's judgmental personality.
+**Fix:** Rewrote all 600 verdicts to be reactions, not instructions. Preserved the snarky, opinionated duck voice: "Ducky says absolutely not. A flashlight has one job." Each verdict family has distinct personality — hard_no is dramatically firm, approved is rare grudging praise, chaos is amused horror, soft_roast is pointed mockery.
+**Files:** `app/data/content.ts`
+
+#### 61. Dead shareFooters array (Minor)
+**Problem:** 14 share footer taglines were selected by the engine and included in every `PlayResult`, but never rendered anywhere. The share card footer was hardcoded branding since Round 6/7.
+**Fix:** Removed `shareFooters` export, `ShareFooter` type, and `footer` field from `PlayResult`.
+**Files:** `app/data/content.ts`, `lib/types.ts`
+
+#### 62. Dead type fields on Question (Minor)
+**Problem:** `severity`, `tags`, `weight`, and `preferredFamilies` fields on `Question` were only used by the now-removed shared pool resolution logic (`inferSeverity`, `resolveFamily`, `categoryDefaultFamilies`).
+**Fix:** Removed all four fields from the `Question` interface. Removed `QuestionSeverity`, `VerdictLine`, `AfterburnLine` types.
+**Files:** `lib/types.ts`, `app/data/content.ts`
+
+## Round 9: Unique share cards — texture overlays and drip-derived color wash
+
+Made each share card visually unique by combining 6 CSS texture patterns with a diagonal color gradient derived from the ducky's accessory colors. Replaced the old 5 barely-visible visual variants.
+
+### Fixed
+
+#### 63. Share cards looked identical across different questions (Major)
+**Problem:** The old 5 visual variants (alert-halo, scan-lines, vault-beam, soft-cloud, film-glow) were barely-visible gradients at 6-10% opacity. Every share card looked like the same white card unless you read the text.
+**Fix:** Added 6 distinct CSS texture patterns (grain, dots, crosshatch, waves, confetti, mesh) combined with a diagonal color gradient wash derived from the ducky's accessories via `dripAccentColor()`. The color wash covers 80% of the card at 0.25 opacity — clearly visible. Each texture has a unique gradient angle (135°, 225°, 180°, 315°, 160°, 200°) so even same-color cards with different textures look distinct.
+**Files:** `components/ShareCard.module.css`, `components/ShareCard.tsx`, `lib/duckyDrip.ts`, `lib/contentEngine.ts`, `lib/types.ts`, `app/data/content.ts`
+
+#### 64. Accessory color extraction for card tinting (Significant)
+**Problem:** No mechanism existed to derive a visual theme from the randomized Ducky Drip accessories.
+**Fix:** Added `dripAccentColor(config)` to `lib/duckyDrip.ts`. Maps every accessory index to its dominant SVG fill color (extracted from the 48 drip assets). Prioritizes colorful items (cap > shade > shoe > acc) using a saturation check (`isColorful` filters out grays). Falls back to Ente green `#08C225` when all accessories are neutral.
+**Files:** `lib/duckyDrip.ts`
+
+#### 65. Textures use accent color for cohesive tinting (Significant)
+**Problem:** Initial texture implementation used neutral black patterns that were invisible against the white card, especially next to the stronger color wash.
+**Fix:** Texture patterns (dots, crosshatch, confetti, mesh) now use the drip-derived accent color via `--tr` CSS variable. A ducky with pink shades produces pink dots; a blue cap produces blue crosshatch. Grain and waves use neutral patterns at higher opacity since SVG data URIs cannot reference CSS variables. All textures at 0.06-0.14 opacity.
+**Files:** `components/ShareCard.module.css`, `components/ShareCard.tsx`
+
+#### 66. localStorage migration for new PlayResult shape (Minor)
+**Problem:** Users with cached `lastResult` from previous deploys had `visualVariant` (string) and `afterburn` (object with `.text`) but no `texture`, `accentColor`, or string `afterburn`. Loading old results would render broken cards.
+**Fix:** Added migration checks in `AskDuckyShell.tsx` mount effect: if `afterburn` is an object, extract `.text`; if `texture` is missing, default to `"grain"` + Ente green accent.
+**Files:** `components/AskDuckyShell.tsx`

@@ -35,31 +35,22 @@ shuffleAllQuestions()
 
 generatePlayResultForQuestion(question, history)
   │
-  ├── pickVerdict(question, recentVerdictIds)
-  │     ├── resolveFamily(question)
-  │     │     ├── high severity + hard_no pref  → 60% hard_no, 40% random preferred
-  │     │     ├── low severity + soft_roast     → 55% soft_roast, 45% random preferred
-  │     │     └── otherwise                     → random from preferred families
-  │     ├── Filter by family
-  │     ├── Prefer category-specific (70%)
-  │     ├── Fall back to global pool
-  │     └── filterRecent → pickRandom
+  ├── pickVerdictIndex(questionId, recentVerdictIds)
+  │     └── Pick 1 of 3 inline verdicts, avoiding recent (composite ID: questionId_v0/1/2)
   │
-  ├── pickAfterburn(categoryId)
-  │     ├── Prefer category-specific (70%)
-  │     ├── Fall back to global pool
-  │     └── filterRecent → pickRandom
+  ├── Pick random afterburn index (0, 1, or 2)
   │
-  ├── Mood selection → pickRandom(moodsByFamily[verdict.family])
-  ├── Visual variant, footer, caption selection
-  └── DripConfig → randomDripConfig() (cap, shoe, shade, accessory)
+  ├── randomDripConfig() → DripConfig (cap, shoe, shade, accessory)
+  ├── dripAccentColor(dripConfig) → hex color from most colorful accessory
+  ├── pickRandom(textures) → one of 6 texture patterns
+  └── pickRandom(shareCaptions) → share text
 
 generatePlayResult(history)
   │
   └── pickQuestion(history) → generatePlayResultForQuestion(question, history)
 ```
 
-**Result payload:** `{ question, verdict, afterburn, footer, caption, mood, visualVariant, dripConfig }`
+**Result payload:** `{ question, verdict, afterburn, caption, texture, accentColor, dripConfig }`
 
 ## Content data model
 
@@ -73,23 +64,15 @@ Question (200, 20 per category)
   ├── id: string
   ├── categoryId: CategoryId
   ├── text: string
-  ├── severity: "high" | "medium" | "low"  (inferred from keywords)
-  ├── tags: string[]
-  ├── weight: number
-  └── preferredFamilies: VerdictFamily[]   (from category defaults)
+  ├── verdicts: [QuestionVerdict, QuestionVerdict, QuestionVerdict]
+  │     └── each: { family: VerdictFamily, text: string }
+  └── afterburns: [string, string, string]
 
-VerdictLine (156 = ~10 global + ~2-4 per category per family)
+ShareCaptionTemplate (10)
   ├── id: string
-  ├── family: VerdictFamily
-  ├── text: string
-  └── categoryIds?: CategoryId[]           (if set, used for category-matching)
+  └── text: string
 
-AfterburnLine (75 = 15 global + 6 per category)
-  ├── id: string
-  ├── text: string
-  └── categoryIds?: CategoryId[]
-
-ShareFooter (14), ShareCaptionTemplate (10), DuckyMood (8)
+Textures (6): "grain" | "dots" | "crosshatch" | "waves" | "confetti" | "mesh"
 ```
 
 ## Component tree
@@ -136,7 +119,7 @@ Each browser-dependent concern is isolated behind a small interface in `lib/`:
 | `exportImage.ts` | DOM → PNG export + download | html-to-image, URL.createObjectURL |
 | `storage.ts` | History persistence | localStorage |
 | `contentEngine.ts` | Question picking, result generation | — |
-| `duckyDrip.ts` | Random Ducky Drip avatar config | — |
+| `duckyDrip.ts` | Random Ducky Drip config + accent color extraction | — |
 
 ## Share flow
 
@@ -176,7 +159,7 @@ handleShare()
 - **Component styles:** CSS Modules (`.module.css`) scoped to each component
 - **Font loading:** Inter loaded via `next/font/google`, injected as `--font-inter` CSS variable
 - **Reduced motion:** Global `prefers-reduced-motion` media query disables all animations
-- **Share card variants:** 5 warm-tinted CSS classes (alert-halo, scan-lines, vault-beam, soft-cloud, film-glow)
+- **Share card variants:** 6 texture CSS classes (grain, dots, crosshatch, waves, confetti, mesh) + drip-derived diagonal color wash + accent-colored texture patterns
 - **Elevation model:** Soft two-layer shadows instead of borders — inspired by Clay/Lovable design systems
 - **Viewport fit:** Idle screen flows on cream (no card container). Result screen uses side-by-side buttons
 - **Background:** Flat warm cream `#f7f5f0` — no animated gradients or blobs

@@ -10,13 +10,13 @@ Build Ask Ducky as a mobile-first, mostly static Next.js App Router web app cent
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Content engine | Done | Category-weighted selection, repeat avoidance, layered verdict lookup |
-| Content authoring | Done | 200 questions, 156 verdicts, 75 afterburns, all launch targets met |
+| Content engine | Done | Per-question verdicts (3 each) and afterburns (3 each), 9 combos per question, repeat avoidance |
+| Content authoring | Done | 200 questions, 600 verdicts (3 per question), 600 afterburns (3 per question) |
 | 2-state UI | Done | Idle (scrollable list of all 200 shuffled questions) → result (no intermediate question phase) |
 | Shake interaction | Done | Threshold 18, 1s debounce, iOS permission button, auto-grant on Android/desktop, works on both idle and result screens |
 | Haptics | Done | 3 patterns: question reveal, verdict reveal, share success |
 | Share flow | Done | 4-tier fallback chain with DOM-to-image failure handling |
-| Share card renderer | Done | Square export, 5 visual variants (warm tints on light theme) |
+| Share card renderer | Done | 6 texture overlays + drip-derived color wash for unique card visuals |
 | Offline support | Done | Service worker + bundled content (basePath-aware) |
 | Local persistence | Done | Recent history, motion permission, last result re-share |
 | Design tokens | Done | Warm light theme: cream `#f7f5f0`, charcoal `#1c1c1c`, coral `#e8614d` action |

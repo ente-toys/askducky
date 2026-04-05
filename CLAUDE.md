@@ -33,26 +33,28 @@ npx tsc --noEmit     # Type check
 ## Architecture summary
 
 - **Single client component** (`AskDuckyShell.tsx`) manages a 2-phase state machine: idle → result (question phase was removed — tapping or shaking goes directly to result)
-- **Content engine** (`lib/contentEngine.ts`) composes results from category-weighted questions, family-resolved verdicts, category-matched afterburns, visual variants, and randomized Ducky Drip configs
+- **Content engine** (`lib/contentEngine.ts`) picks from per-question verdicts (3 each) and afterburns (3 each), giving 9 combinations per question — always relevant to the question asked
 - **All content is bundled** — no backend, no API calls. Fully playable offline after first load
 - **Browser APIs** (shake, haptics, share, export) are each isolated behind small library interfaces in `lib/`
 - **Ducky Drip** (`lib/duckyDrip.ts`, `components/DuckyDrip.tsx`) renders randomized ducky avatars from layered SVGs (48 assets in `public/ducky/drip/`)
 
 ## Content engine rules
 
-- Verdicts and afterburns are tagged with `categoryIds`. The engine prefers category-matched content (70%) and falls back to global pools (30%)
-- Mood type and mood-verdict correlation were removed (DuckyDrip provides visual variety instead)
-- Repeat avoidance uses a 10-item history window for both questions and verdicts
-- Severity is inferred from question text keywords — this drives verdict family resolution
+- Each question has 3 inline verdicts (each tagged with a verdict family) and 3 inline afterburns. The engine picks 1 of each randomly, giving 9 possible combinations per question
+- Verdicts and afterburns are always relevant to the specific question — no shared pools or category-matching needed
+- Repeat avoidance uses a 10-item history window for questions and composite verdict IDs (`questionId_v0/1/2`)
+- Verdict families (hard_no, cautious_maybe, approved, chaos, soft_roast) are assigned per-verdict, not per-category. Each question's 3 verdicts span at least 2 different families
+- Share footers were removed (dead content — never rendered since Round 6/7). ShareCaptions remain for share text
 
 ## Design decisions to preserve
 
 - **Warm light theme.** Cream `#f7f5f0` background, white elevated surfaces, charcoal text. Inspired by Clay and Lovable design systems. No dark mode, no animated gradients.
 - **Shadows for elevation, not borders.** Cards and interactive elements use soft two-layer shadows. Borders only for internal structural dividers (share card footer line).
-- **Share card is the result screen.** Renders outside any container wrapper. Side-by-side "Share the advice" / "Ask Ducky again" buttons below, plus shimmer shake hint. Share card header includes "Privacy advice from a judgmental duck" tagline. Footer (divider + AskDucky.app + Made with ❤️ ente) is hidden in web view and shown only in exported image via `data-export-mode` attribute.
+- **Share card is the result screen.** Renders outside any container wrapper. Side-by-side "Share the advice" / "Ask Ducky again" buttons below, plus shimmer shake hint. Share card header includes "Privacy advice from a judgmental duck" tagline. Footer (divider + AskDucky.app + Made with ❤️ ente) is hidden in web view and shown only in exported image via `data-export-mode` attribute. Each card has a unique visual identity from 6 texture overlays × drip-derived color wash.
+- **Share card visual variety.** 6 CSS texture patterns (grain, dots, crosshatch, waves, confetti, mesh) combined with a diagonal color gradient derived from the ducky's accessory colors. Textures use the accent color (dots are pink if the ducky wears pink shades, etc). Each texture has a different gradient angle. `dripAccentColor()` in `lib/duckyDrip.ts` extracts the most colorful accessory color from the DripConfig.
 - **Idle screen has no card container.** Content flows directly on cream background. Hero DuckyDrip (180px) + subtitle heading ("Privacy advice from a judgmental duck") + shimmer shake hint with "or pick one" sub-text + scrollable question list (all 200 questions shuffled, 273px max-height).
 - **No developer-facing text in UI.** Avoid technical labels like "offline-ready" or "varies by category" in user-visible copy.
-- **Questions should sound natural.** Like something a real person would wonder, not comedy bits with forced punchlines.
+- **Questions should sound natural.** Short, simple questions that a common consumer would actually wonder. Not comedy bits with forced punchlines.
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
 - **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" link only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
@@ -101,9 +103,11 @@ Ente green scale from Figma: `#E7F6E9` (light), `#BAECC2` (stroke), `#08C225` (p
 ## Testing
 
 Run `npx vitest run` before committing. Tests cover:
-- Content quantity targets (questions, verdicts, afterburns, footers)
-- All 5 verdict families present (including soft_roast)
-- Content engine returns complete shareable results
+- Exactly 200 questions (20 per category)
+- Each question has exactly 3 verdicts and 3 afterburns
+- Each question's verdicts span at least 2 different families
+- All 5 verdict families represented across full question set
+- Content engine returns complete shareable results with texture and accentColor
 - History trimming keeps 10 most recent unique items
 
 ## Figma integration
