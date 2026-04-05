@@ -450,7 +450,12 @@ Styling pass to make the home screen more inviting and the result screen's quest
 **Fix:** Bumped to `1.12rem`/500 weight. Verdict reduced from `clamp(1.5rem, 5vw, 2.4rem)`/800 to `clamp(1.4rem, 4.5vw, 2.1rem)`/700 for better balance. Question is now clearly readable without competing with the verdict.
 **Files:** `components/ShareCard.module.css`
 
-#### 77. Home subtitle dominated non-actionable space (Minor)
+#### 77. Home subtitle line break felt unintentional (Minor)
+**Problem:** "Privacy advice from a judgmental duck" wrapped to two lines on mobile with "duck" orphaned on the second line, looking like an accidental break.
+**Fix:** Added an intentional `<br />` after "from" so the break is deliberate. "a judgmental duck" is wrapped in a `<span>` at 125% font size, giving the second line emphasis and making the two-line layout feel designed.
+**Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
+
+#### 78. Home subtitle dominated non-actionable space (Minor)
 **Problem:** "Privacy advice from a judgmental duck" at `clamp(1.54rem, 5vw, 1.98rem)` was the largest text on screen but not actionable. It took prime real estate from the shake hint and question list.
 **Fix:** Reduced to `clamp(1.46rem, 4.9vw, 1.9rem)`. Question card padding increased to `18px 22px` and font to `1.05rem` to shift visual weight toward actionable elements.
 **Files:** `components/AskDuckyShell.module.css`

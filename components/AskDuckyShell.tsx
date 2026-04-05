@@ -270,7 +270,7 @@ export function AskDuckyShell() {
                   <DuckyDrip config={heroDripConfig} size={180} />
                 </div>
               ) : null}
-              <h2 className={styles.title}>Privacy advice from a judgmental duck</h2>
+              <h2 className={styles.title}>Privacy advice from<br /><span className={styles.titleEmphasis}>a judgmental duck</span></h2>
             </div>
             <div className={`${styles.questionList} ${styles.phaseEnter}`}>
               <div className={styles.shakeHintWrap}>

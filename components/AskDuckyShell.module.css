@@ -117,6 +117,10 @@
   color: var(--text);
 }
 
+.titleEmphasis {
+  font-size: 125%;
+}
+
 
 /* --- Idle question list --- */
 
