@@ -423,3 +423,34 @@ Comprehensive quality audit and rewrite of ~350 flat content lines across all 10
 **Problem:** "Use a VPN" / "use mobile data" appeared in nearly every question. Airport Wi-Fi, bank on Wi-Fi, hotel Wi-Fi, and documents on Wi-Fi all gave identical advice. "Is roaming stress a valid excuse?" got motivational poster responses.
 **Fix:** Each question now has distinct, situation-specific verdicts and afterburns. VPN/data advice replaced with duck-voice reactions ("Your latte cost four dollars. The Wi-Fi could cost you a lot more.").
 **Files:** `app/data/content.ts`
+
+## Round 11: Visual polish — home screen energy and result screen readability
+
+Styling pass to make the home screen more inviting and the result screen's question more readable. No structural changes.
+
+### Fixed
+
+#### 73. Hero ducky felt passive and decorative (Significant)
+**Problem:** The hero DuckyDrip used a gentle 3s vertical bob (`orbFloat`, ±10px). It looked like a static decoration, not an invitation to interact.
+**Fix:** Replaced with `duckyWobble` — a 1.2s loop with bounce (±12px vertical), sway (±6px horizontal), and tilt (±3.5deg rotation). Added a pulsing coral-to-green radial gradient glow behind the ducky via `::before` pseudo-element (`glowPulse` animation, 3s). The ducky now looks like it's waiting to be shaken.
+**Files:** `components/AskDuckyShell.module.css`
+
+#### 74. Question cards looked like a settings menu (Significant)
+**Problem:** Every `.questionItem` was identical — same beige `#f0ede6` background, same weight, same shadow. The list had no visual variety or sense of playfulness.
+**Fix:** Added 4 rotating card styles via `:nth-child(4n+N)`: warm cream + coral left border, sage + green right border, warm rose + amber left border, cool lavender + muted right border. Enhanced shadow for button-like elevation. Text weight bumped to 600 (semi-bold). Scoped to `.questionItem` only — ShareCard's `.questionWrap` unaffected.
+**Files:** `components/AskDuckyShell.module.css`
+
+#### 75. Share card question wrap clashed with textured backgrounds (Significant)
+**Problem:** The question panel used opaque cream `var(--surface)` (`#f0ede6`), which sat awkwardly against the share card's texture overlays and color wash. Especially visible with dots/confetti textures — the cream box looked like a mismatched patch.
+**Fix:** Replaced with frosted glass: `rgba(255, 255, 255, 0.55)` + `backdrop-filter: blur(12px)`. The texture/tint now shows through while keeping text readable. Export mode uses a more opaque `rgba(255, 255, 255, 0.75)` fallback since `backdrop-filter` doesn't render in html-to-image canvas.
+**Files:** `components/ShareCard.module.css`
+
+#### 76. Question text too small on share card (Minor)
+**Problem:** Question text at `1rem`/400 weight was the smallest element on the card aside from the tagline. Next to the 800-weight verdict, the question drowned — hard to read at a glance when shared.
+**Fix:** Bumped to `1.12rem`/500 weight. Verdict reduced from `clamp(1.5rem, 5vw, 2.4rem)`/800 to `clamp(1.4rem, 4.5vw, 2.1rem)`/700 for better balance. Question is now clearly readable without competing with the verdict.
+**Files:** `components/ShareCard.module.css`
+
+#### 77. Home subtitle dominated non-actionable space (Minor)
+**Problem:** "Privacy advice from a judgmental duck" at `clamp(1.54rem, 5vw, 1.98rem)` was the largest text on screen but not actionable. It took prime real estate from the shake hint and question list.
+**Fix:** Reduced to `clamp(1.46rem, 4.9vw, 1.9rem)`. Question card padding increased to `18px 22px` and font to `1.05rem` to shift visual weight toward actionable elements.
+**Files:** `components/AskDuckyShell.module.css`

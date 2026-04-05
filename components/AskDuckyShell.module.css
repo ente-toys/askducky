@@ -88,8 +88,23 @@
 }
 
 .heroMascot {
+  position: relative;
   padding: 8px 0;
-  animation: orbFloat 3s ease-in-out infinite;
+  animation: duckyWobble 1.2s ease-in-out infinite;
+}
+
+.heroMascot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 97, 77, 0.2) 0%, rgba(8, 194, 37, 0.1) 50%, transparent 70%);
+  animation: glowPulse 3s ease-in-out infinite;
+  z-index: -1;
 }
 
 .title {
@@ -184,14 +199,39 @@
   padding: 18px 22px;
   color: var(--text);
   font-size: 1.05rem;
+  font-weight: 600;
   line-height: 1.4;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.05);
   transition: box-shadow 160ms ease, transform 160ms ease;
 }
 
+/* Variation 1: warm cream + coral left border */
+.questionItem:nth-child(4n+1) {
+  background: #f0ede6;
+  border-left: 3px solid rgba(232, 97, 77, 0.45);
+}
+
+/* Variation 2: sage tint + green right border */
+.questionItem:nth-child(4n+2) {
+  background: #ebefe7;
+  border-right: 3px solid rgba(8, 194, 37, 0.4);
+}
+
+/* Variation 3: warm rose tint + amber left border */
+.questionItem:nth-child(4n+3) {
+  background: #f0eae7;
+  border-left: 3px solid rgba(208, 138, 17, 0.4);
+}
+
+/* Variation 4: cool lavender tint + muted right border */
+.questionItem:nth-child(4n+4) {
+  background: #eaebf0;
+  border-right: 3px solid rgba(107, 105, 102, 0.35);
+}
+
 .questionItem:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 10px 24px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 
@@ -295,9 +335,16 @@
   to { opacity: 1; }
 }
 
-@keyframes orbFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes duckyWobble {
+  0%, 100% { transform: translateY(0) rotate(0deg) translateX(0); }
+  25% { transform: translateY(-8px) rotate(3.5deg) translateX(6px); }
+  50% { transform: translateY(-12px) rotate(0deg) translateX(0); }
+  75% { transform: translateY(-8px) rotate(-3.5deg) translateX(-6px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
 }
 
 @keyframes verdictPop {
