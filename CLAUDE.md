@@ -58,7 +58,7 @@ npx tsc --noEmit     # Type check
 - **CSS custom properties for all colors.** ShareCard and all components must use `var(--token)`, never hardcoded hex values.
 - **Progressive enhancement for motion.** Button fallback must exist in every state. Never gate functionality behind shake. The "Enable shake" link only shows on iOS (where a user gesture is required for DeviceMotion permission). On Android/desktop, motion permission is auto-detected on mount.
 - **basePath-aware asset paths.** All static asset references in components must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix for GitHub Pages compatibility.
-- **Topbar has ducky + brand link.** Left: clickable "AskDucky.app" with hero ducky (resets to home). Right: "Made with ❤️ / ente" linking to `ente.com/?utm_source=askducky`.
+- **Topbar has ducky + brand link.** Left: clickable "AskDucky.app" with hero ducky (resets to home). Right: "Made with ❤️ / ente" linking to `ente.com`.
 - **Shake works on both screens.** Shake triggers a new result from both idle and result screens. No dependency on current phase.
 - **Minimal feedback messages.** Short confirmations only: "Shared!", "Link copied!", etc. No verbose messages for shake enabled, image saved, or share confirmations.
 - **Haptics on every interaction.** Question tap fires `hapticForQuestionReveal`, verdict fires `hapticForVerdictReveal` (double-pulse). Share success fires `hapticForShareSuccess`. All patterns scaled ~1.55x.

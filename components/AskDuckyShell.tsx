@@ -252,9 +252,9 @@ export function AskDuckyShell() {
             <span className={styles.topbarTitle}>AskDucky.app</span>
           </button>
           <a
-            href="https://ente.com/?utm_source=askducky"
+            href="https://ente.com"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             className={styles.topbarRight}
           >
             <span className={styles.topbarMadeWith}>Made with ❤️</span>

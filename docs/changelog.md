@@ -130,7 +130,7 @@ Major UX overhaul to simplify the flow and improve visual hierarchy.
 
 #### 21. Topbar was plain text badge (Significant)
 **Problem:** The topbar only showed "Ask Ducky" in a pill badge with no branding or navigation.
-**Fix:** Left side: clickable ducky hero image (36px) + "Ask Ducky" text (resets to home). Right side: "Made with 💚" (small) + "ente" (large, green accent) linking to `ente.com/?utm_source=askducky`.
+**Fix:** Left side: clickable ducky hero image (36px) + "Ask Ducky" text (resets to home). Right side: "Made with 💚" (small) + "ente" (large, green accent) linking to `ente.com`.
 **Files:** `components/AskDuckyShell.tsx`, `components/AskDuckyShell.module.css`
 
 #### 22. Result screen had double bounding box (Significant)
